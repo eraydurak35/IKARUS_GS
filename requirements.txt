@@ -1,0 +1,9 @@
+setuptools~=65.5.1
+customtkinter~=5.1.2
+future~=0.18.3
+numpy~=1.24.2
+tkintermapview~=1.28
+pandas~=1.5.3
+Pillow~=9.4.0
+pyserial~=3.5
+inputs~=0.5
