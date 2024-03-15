@@ -138,6 +138,8 @@ def read_serial():
 
                 for index, key in enumerate(config_data_dict.keys()):
                     config_data_dict[key] = float_data[index]
+
+                return 2
             else:
                 print("checksum error config!!")
 

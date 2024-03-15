@@ -5,15 +5,24 @@ import gamepad_handler
 import main_ui
 import threading
 import time
+import config_ui
+
 counter = 0
+
 
 def thread1():
     global counter
     while ui_main.isAppAlive:
         counter = counter + 1
-        asd = serial_backend.read_serial()
-        if asd == 1:
+
+        ret = serial_backend.read_serial()
+
+        if ret == 1:
             ui_main.redraw_waypoint_markers()
+        elif ret == 2:
+            config_ui.show_config_window()
+
+
         if counter > 1:
             counter = 0
             ui_main.update_telemetry_ui()
@@ -25,7 +34,6 @@ def thread2():
         serial_backend.write_serial()
         time.sleep(0.025)
     quit()
-
 
 
 # def thread3():
