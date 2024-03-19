@@ -41,18 +41,18 @@ def thread2():
 #         gamepad_handler.handle_gamepad()
 #     quit()
 
+if __name__ == '__main__':
+    com_port_selection.start()
+    serial_backend.port_init(com_port_selection.selected_port)
+    ui_main = main_ui.MainWindow()
 
-com_port_selection.start()
-serial_backend.port_init(com_port_selection.selected_port)
-ui_main = main_ui.MainWindow()
+    t1 = threading.Thread(target=thread1)
+    t2 = threading.Thread(target=thread2)
+    # t3 = threading.Thread(target=thread3)
+    t1.start()
+    t2.start()
+    # t3.start()
 
-t1 = threading.Thread(target=thread1)
-t2 = threading.Thread(target=thread2)
-# t3 = threading.Thread(target=thread3)
-t1.start()
-t2.start()
-# t3.start()
-
-while ui_main.isAppAlive:
-    ui_main.update_ui()
-quit()
+    while ui_main.isAppAlive:
+        ui_main.update_ui()
+    quit()

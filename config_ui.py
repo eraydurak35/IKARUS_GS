@@ -14,7 +14,7 @@ def show_config_window():
 
     def get_entries():
 
-        response = messagebox.askyesnocancel("Send New Config", "Are you sure?")
+        response = messagebox.askokcancel("Send New Config", "Are you sure?")
 
         is_error_found = False
 

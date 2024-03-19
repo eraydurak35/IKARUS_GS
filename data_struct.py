@@ -179,9 +179,9 @@ telemetry_scale_dict = {
     "acc_x_ms2": 400.0,
     "acc_y_ms2": 400.0,
     "acc_z_ms2": 400.0,
-    "mag_x_gauss": 10.0,
-    "mag_y_gauss": 10.0,
-    "mag_z_gauss": 10.0,
+    "mag_x_gauss": 1,
+    "mag_y_gauss": 1,
+    "mag_z_gauss": 1,
 
     "gps_fix": 1,
     "gps_satCount": 1,

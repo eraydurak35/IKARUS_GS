@@ -1,5 +1,7 @@
 import serial
 import struct
+
+import mag_calibration
 from data_struct import *
 import pandas as pd
 import numpy as np
@@ -11,10 +13,16 @@ gamepad_data_size = 0
 send_gamepad_data = True
 send_config_data = False
 send_waypoints_data = False
+send_mag_calib_data = False
 request_config_data = False
 request_wp_data = False
 blackbox_state = False
+gather_mag_data_for_calibration = False
 blackbox_file_name = ""
+
+mag_x_raw = []
+mag_y_raw = []
+mag_z_raw = []
 
 
 def port_init(com_port):
@@ -43,7 +51,8 @@ def read_serial():
     global serial_instance
 
     data_header = serial_instance.read(1)
-    # if header is found
+
+    # TELEMETRY RECEIVED
     if data_header == b'\xff':
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
         if size - 3 != expected_telemetry_data_size:
@@ -99,8 +108,6 @@ def read_serial():
                         i = i + 2
 
                 for index, key in enumerate(telemetry_scale_dict.keys()):
-                    # if key == "gps_satCount":
-                    #     print(parsed_data[index])
                     parsed_data[index] = parsed_data[index] / telemetry_scale_dict[key]
 
                 for index, key in enumerate(telemetry_data_dict.keys()):
@@ -110,10 +117,15 @@ def read_serial():
                     df = pd.DataFrame([telemetry_data_dict])
                     df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/Project STARLING/flight_logs/" + blackbox_file_name,
                               mode='a', index=False, header=False)
+
+                if gather_mag_data_for_calibration:
+                    mag_x_raw.append(telemetry_data_dict["mag_x_gauss"])
+                    mag_y_raw.append(telemetry_data_dict["mag_y_gauss"])
+                    mag_z_raw.append(telemetry_data_dict["mag_z_gauss"])
             else:
                 print("checksum error telem!!")
 
-
+    # CONFIG RECEIVED
     elif data_header == b'\xfe':
 
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
@@ -142,7 +154,7 @@ def read_serial():
                 return 2
             else:
                 print("checksum error config!!")
-
+    # WAYPOINT RECEIVED
     elif data_header == b'\xfd':
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
 
@@ -156,7 +168,6 @@ def read_serial():
                 parsed_data = []
 
                 for i in range(0, 200, 4):
-
                     four_bytes = bytearray(4)
                     four_bytes[0] = data_bytes[i]
                     four_bytes[1] = data_bytes[i + 1]
@@ -182,6 +193,8 @@ def read_serial():
                 print("checksum error wp!!")
 
     return 0
+
+
 def write_serial():
     global send_config_data
     global send_gamepad_data
@@ -189,6 +202,7 @@ def write_serial():
     global gamepad_data_size
     global request_config_data
     global request_wp_data
+    global send_mag_calib_data
 
     if send_gamepad_data:
 
@@ -197,9 +211,14 @@ def write_serial():
             packed_data = packed_data + struct.pack('i', gamepad_data_dict[keys])
 
         cs1, cs2 = checksum_generate(packed_data, len(gamepad_data_dict) * 4)
-        packed_data = struct.pack('B', 255) + struct.pack('B',
-                                                          (len(gamepad_data_dict) * 4) + 3) + packed_data + struct.pack(
-            'B', cs1) + struct.pack('B', cs2) + struct.pack('B', 0x69)
+
+        packed_data = (struct.pack('B', 255)
+                       + struct.pack('B', (len(gamepad_data_dict) * 4) + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', 0x69))
+
         serial_instance.write(packed_data)
 
     elif send_config_data:
@@ -210,9 +229,14 @@ def write_serial():
             packed_data = packed_data + struct.pack('f', config_data_dict[keys])
 
         cs1, cs2 = checksum_generate(packed_data, len(config_data_dict) * 4)
-        packed_data = struct.pack('B', 254) + struct.pack('B',
-                                                          (len(config_data_dict) * 4) + 3) + packed_data + struct.pack(
-            'B', cs1) + struct.pack('B', cs2) + struct.pack('B', 0x69)
+
+        packed_data = (struct.pack('B', 254)
+                       + struct.pack('B', (len(config_data_dict) * 4) + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', 0x69))
+
         serial_instance.write(packed_data)
 
     elif send_waypoints_data:
@@ -242,9 +266,15 @@ def write_serial():
             packed_data = packed_data + struct.pack('B', values)
 
         total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes)
+
         cs1, cs2 = checksum_generate(packed_data, total_len)
-        packed_data = (struct.pack('B', 253) + struct.pack('B', total_len + 3) + packed_data
-                       + struct.pack('B', cs1) + struct.pack('B', cs2) + struct.pack('B', 0x69))
+
+        packed_data = (struct.pack('B', 253)
+                       + struct.pack('B', total_len + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', 0x69))
         serial_instance.write(packed_data)
 
     elif request_config_data:
@@ -254,9 +284,14 @@ def write_serial():
         packed_data = bytes()
         packed_data = packed_data + struct.pack('B', 10)
         cs1, cs2 = checksum_generate(packed_data, 1)
-        packed_data = struct.pack('B', 252) + struct.pack('B',
-                                                          1 + 3) + packed_data + struct.pack(
-            'B', cs1) + struct.pack('B', cs2) + struct.pack('B', 0x69)
+
+        packed_data = (struct.pack('B', 252)
+                       + struct.pack('B', 1 + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', 0x69))
+
         serial_instance.write(packed_data)
 
     elif request_wp_data:
@@ -267,9 +302,52 @@ def write_serial():
         packed_data = bytes()
         packed_data = packed_data + struct.pack('B', 20)
         cs1, cs2 = checksum_generate(packed_data, 1)
-        packed_data = struct.pack('B', 252) + struct.pack('B',
-                                                          1 + 3) + packed_data + struct.pack(
-            'B', cs1) + struct.pack('B', cs2) + struct.pack('B', 0x69)
+
+        packed_data = (struct.pack('B', 252)
+                       + struct.pack('B',1 + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', 0x69))
+
+        serial_instance.write(packed_data)
+
+    elif send_mag_calib_data:
+
+        send_mag_calib_data = False
+        send_gamepad_data = True
+        print("mag_calib_send!!")
+        packed_data = bytes()
+
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_bias[0][0])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_bias[1][0])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_bias[2][0])
+
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[0][0])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[0][1])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[0][2])
+
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[1][0])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[1][1])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[1][2])
+
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[2][0])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[2][1])
+        packed_data = packed_data + struct.pack('f', mag_calibration.mag_matrix[2][2])
+
+        size = 48
+        header = 251
+        footer = 0x69
+        cs1, cs2 = checksum_generate(packed_data, size)
+
+        packed_data = (struct.pack('B', header)
+                       + struct.pack('B', size + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', footer))
+
+        print(packed_data.hex())
         serial_instance.write(packed_data)
 
 
