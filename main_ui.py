@@ -12,6 +12,8 @@ import math
 from config_ui import show_config_window
 import mag_calibration
 from tkinter import messagebox
+import voice_notify
+import motor_test_ui
 
 
 class MainWindow:
@@ -153,67 +155,78 @@ class MainWindow:
                                           command=self.close_application)
         self.close_button.place(relx=0.828, rely=0.03, anchor=tkinter.CENTER)
 
+        self.voice_notification_checkbox = ctk.CTkCheckBox(master=self.root, width=20, height=20, corner_radius=5,
+                                                           text="", command=voice_notification_enable_disable)
+
+        self.voice_notification_checkbox.place(relx=0.828, rely=0.07, anchor=tkinter.CENTER)
+
         # UTILITY FRAME /*******************************************************************************/
-        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=600, height=95,
+        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=710, height=95,
                                               corner_radius=10)
-        self.arm_utility_frame.place(relx=0.162, rely=0.053, anchor=tkinter.CENTER)
+        self.arm_utility_frame.place(relx=0.189, rely=0.053, anchor=tkinter.CENTER)
 
         self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
                                            command=show_config_window, image=self.config_img, text="",
                                            fg_color="transparent", state="enabled")
-        self.config_button.place(relx=0.07, rely=0.5, anchor=tkinter.CENTER)
+        self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              command=self.blackbox, text="", state="enabled", fg_color="transparent",
                                              image=self.blackbox_passive_img)
 
-        self.blackbox_button.place(relx=0.18, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_button.place(relx=0.14, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_auto_record_button = ctk.CTkButton(master=self.arm_utility_frame, width=10, height=40,
                                                          corner_radius=5,
                                                          command=self.auto_blackbox, text="", state="enabled",
                                                          fg_color="green")
 
-        self.blackbox_auto_record_button.place(relx=0.23, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_auto_record_button.place(relx=0.18, rely=0.5, anchor=tkinter.CENTER)
 
         self.alt_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.alt_hold_passive_img)
 
-        self.alt_hold_button.place(relx=0.32, rely=0.5, anchor=tkinter.CENTER)
+        self.alt_hold_button.place(relx=0.25, rely=0.5, anchor=tkinter.CENTER)
 
         self.pos_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.pos_hold_passive_img)
 
-        self.pos_hold_button.place(relx=0.42, rely=0.5, anchor=tkinter.CENTER)
+        self.pos_hold_button.place(relx=0.33, rely=0.5, anchor=tkinter.CENTER)
 
         self.waypoint_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.waypoint_passive_img)
 
-        self.waypoint_button.place(relx=0.52, rely=0.5, anchor=tkinter.CENTER)
+        self.waypoint_button.place(relx=0.41, rely=0.5, anchor=tkinter.CENTER)
 
-        self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=45, height=40, corner_radius=5,
-                                         text="Save", state="enabled", command=self.save_on_click, font=("Arial", 14, "bold"))
+        self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
+                                         text_color="black", fg_color="#dcdde1", text="Save", command=self.save_on_click,
+                                         font=("Arial", 14, "bold"))
 
-        self.save_button.place(relx=0.62, rely=0.5, anchor=tkinter.CENTER)
+        self.save_button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_mag_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
-                                                  text="Start Mag Cal", state="enabled",
+                                                  text_color="black", fg_color="#dcdde1", text="Start Mag Cal",
                                                   command=self.calibrate_mag_event, font=("Arial", 14, "bold"))
 
-        self.calibrate_mag_button.place(relx=0.76, rely=0.5, anchor=tkinter.CENTER)
+        self.calibrate_mag_button.place(relx=0.63, rely=0.5, anchor=tkinter.CENTER)
+
+        self.motor_test_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
+                                               text_color="black", fg_color="#dcdde1", font=("Arial", 15, "bold"), text="Motor Test",
+                                               command=motor_test_ui.show_motor_test_window)
+        self.motor_test_button.place(relx=0.79, rely=0.5, anchor=tkinter.CENTER)
 
         self.wp_altitude_input = ctk.CTkEntry(master=self.arm_utility_frame, width=60, height=40, corner_radius=5,
                                               placeholder_text="WP Alt")
 
-        self.wp_altitude_input.place(relx=0.92, rely=0.5, anchor=tkinter.CENTER)
+        self.wp_altitude_input.place(relx=0.93, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME  /*********************************************************************************/
         self.data_frame = ctk.CTkFrame(master=self.root, width=290, height=1060,
                                        corner_radius=10)
-        self.data_frame.place(relx=0.93, rely=0.5, anchor=tkinter.CENTER)
+        self.data_frame.place(relx=0.92, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME 1  ///////////////////////////////////////////////////////////////////////////////////
         self.imu_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=180, corner_radius=10)
@@ -745,10 +758,16 @@ class MainWindow:
                     if self.bb_auto_record:
                         self.blackbox()
                 self.arm_utility_frame.configure(fg_color="dim gray")
+
+                self.calibrate_mag_button.configure(state="disabled")
+                self.motor_test_button.configure(state="disable")
             else:
                 if serial_backend.blackbox_state and self.bb_auto_record:
                     self.blackbox()
                 self.arm_utility_frame.configure(fg_color="gray13")
+
+                self.calibrate_mag_button.configure(state="enabled")
+                self.motor_test_button.configure(state="enabled")
         self.prev_arm_status = telemetry_data_dict["arm_status"]
 
         if telemetry_data_dict["flight_mode"] != self.prev_flight_mode:
@@ -892,9 +911,8 @@ class MainWindow:
 
     def save_on_click(self):
         df = pd.DataFrame([telemetry_data_dict])
-        df.to_csv(
-            "C:/Users/erayd/OneDrive/Masaüstü/SAVE_ON_CLICK_FILE.csv",
-            mode='a', index=False, header=False)
+        df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/SAVE_ON_CLICK_FILE.csv",
+                  mode='a', index=False, header=False)
 
     def auto_blackbox(self):
         if self.bb_auto_record:
@@ -912,13 +930,15 @@ class MainWindow:
         else:
             self.blackbox_button.configure(image=self.blackbox_active_img)
             time_now = datetime.now()
-            serial_backend.blackbox_file_name = str(time_now.day) + "_" + str(time_now.month) + "_" + str(
-                time_now.hour) + "_" + str(
-                time_now.minute) + "_" + str(time_now.second) + ".csv"
+            serial_backend.blackbox_file_name = (str(time_now.day)
+                                                 + "_" + str(time_now.month)
+                                                 + "_" + str(time_now.hour)
+                                                 + "_" + str(time_now.minute)
+                                                 + "_" + str(time_now.second)
+                                                 + ".csv")
             df = pd.DataFrame([telemetry_data_dict])
-            df.to_csv(
-                "C:/Users/erayd/OneDrive/Masaüstü/Project STARLING/flight_logs/" + serial_backend.blackbox_file_name,
-                mode='a', index=False, header=True)
+            df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/Project STARLING/flight_logs/"
+                      + serial_backend.blackbox_file_name, mode='a', index=False, header=True)
             serial_backend.blackbox_state = True
 
     def calibrate_mag_event(self):
@@ -937,10 +957,11 @@ class MainWindow:
             serial_backend.gather_mag_data_for_calibration = False
             self.calibrate_mag_button.configure(text="Start Mag Cal")
             mag_calibration.calibration_state = 0
-            if len(serial_backend.mag_x_raw) >= 5:
+            if len(serial_backend.mag_x_raw) >= 250:
                 mag_calibration.Magnetometer().run()
                 show_mag_cal_data()
             else:
+                messagebox.showinfo("Error!", "Not enough data points gathered to perform calibration!!")
                 print("Not enough data points gathered to perform calibration!!")
 
     def close_application(self):
@@ -1010,21 +1031,22 @@ def show_mag_cal_data():
     apply_mag_calib_button.place(relx=0.5, rely=0.88, anchor=tkinter.CENTER)
 
     textbox.tag_config("center", justify="center")
-    textbox.insert("1.0", f"Length: {len(serial_backend.mag_x_raw)} | Resolution: {mag_calibration.mean_resolution:.0f}\n\n"
-                          f"Hard Iron Bias:\n\n"
-                          f"X: {mag_calibration.mag_bias[0][0]:.2f}    "
-                          f"Y: {mag_calibration.mag_bias[1][0]:.2f}    "
-                          f"Z: {mag_calibration.mag_bias[2][0]:.2f}\n\n"
-                          f"Soft Iron Matrix:\n\n"
-                          f"{mag_calibration.mag_matrix[0][0]:.4f}    "
-                          f"{mag_calibration.mag_matrix[0][1]:.4f}    "
-                          f"{mag_calibration.mag_matrix[0][2]:.4f}\n"
-                          f"{mag_calibration.mag_matrix[1][0]:.4f}    "
-                          f"{mag_calibration.mag_matrix[1][1]:.4f}    "
-                          f"{mag_calibration.mag_matrix[1][2]:.4f}\n"
-                          f"{mag_calibration.mag_matrix[2][0]:.4f}    "
-                          f"{mag_calibration.mag_matrix[2][1]:.4f}    "
-                          f"{mag_calibration.mag_matrix[2][2]:.4f}", "center")
+    textbox.insert("1.0",
+                   f"Length: {len(serial_backend.mag_x_raw)} | Resolution: {mag_calibration.mean_resolution:.0f}\n\n"
+                   f"Hard Iron Bias:\n\n"
+                   f"X: {mag_calibration.mag_bias[0][0]:.2f}    "
+                   f"Y: {mag_calibration.mag_bias[1][0]:.2f}    "
+                   f"Z: {mag_calibration.mag_bias[2][0]:.2f}\n\n"
+                   f"Soft Iron Matrix:\n\n"
+                   f"{mag_calibration.mag_matrix[0][0]:.4f}    "
+                   f"{mag_calibration.mag_matrix[0][1]:.4f}    "
+                   f"{mag_calibration.mag_matrix[0][2]:.4f}\n"
+                   f"{mag_calibration.mag_matrix[1][0]:.4f}    "
+                   f"{mag_calibration.mag_matrix[1][1]:.4f}    "
+                   f"{mag_calibration.mag_matrix[1][2]:.4f}\n"
+                   f"{mag_calibration.mag_matrix[2][0]:.4f}    "
+                   f"{mag_calibration.mag_matrix[2][1]:.4f}    "
+                   f"{mag_calibration.mag_matrix[2][2]:.4f}", "center")
     textbox.configure(state="disabled")  # configure textbox to be read-only
 
 
@@ -1033,3 +1055,10 @@ def send_mag_calib_values():
     if response:
         serial_backend.send_gamepad_data = False
         serial_backend.send_mag_calib_data = True
+
+
+def voice_notification_enable_disable():
+    if voice_notify.is_enabled:
+        voice_notify.is_enabled = 0
+    else:
+        voice_notify.is_enabled = 1

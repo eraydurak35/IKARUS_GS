@@ -257,8 +257,6 @@ config_data_dict = {
     "velz_filter_zeta": 0.0,
     "velxy_filter_beta": 0.0,
 
-    #########################
-
     "alt_to_vel_gain": 0.0,
     "wp_threshold_cm": 0.0,
     "wp_heading_correct_gain": 0.0,
@@ -289,3 +287,5 @@ waypoint_only_altitudes = []
 waypoint_markers = []
 waypoint_counter = 0
 waypoint_altitude = 0
+motor_test_results = [0.0, 0.0, 0.0, 0.0]
+

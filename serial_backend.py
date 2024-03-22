@@ -10,6 +10,7 @@ serial_instance = serial
 expected_telemetry_data_size = 0
 expected_config_data_size = 0
 gamepad_data_size = 0
+motor_test_number = 0
 send_gamepad_data = True
 send_config_data = False
 send_waypoints_data = False
@@ -17,6 +18,7 @@ send_mag_calib_data = False
 request_config_data = False
 request_wp_data = False
 blackbox_state = False
+request_motor_test_data = False
 gather_mag_data_for_calibration = False
 blackbox_file_name = ""
 
@@ -158,7 +160,7 @@ def read_serial():
     elif data_header == b'\xfd':
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
 
-        if (size != 228):
+        if size != 228:
             print("wp size is not 228")
 
         else:
@@ -192,6 +194,27 @@ def read_serial():
             else:
                 print("checksum error wp!!")
 
+    elif data_header == b'\xfc':
+        size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
+
+        if size != 19:
+            print("motor test size is not 19")
+        else:
+            data_bytes = serial_instance.read(size)
+            is_ok = checksum_validate(data_bytes)
+
+            if is_ok:
+
+                for i in range(0, 16, 4):
+                    four_bytes = bytearray(4)
+                    four_bytes[0] = data_bytes[i]
+                    four_bytes[1] = data_bytes[i + 1]
+                    four_bytes[2] = data_bytes[i + 2]
+                    four_bytes[3] = data_bytes[i + 3]
+                    motor_test_results[int(i/4)] = struct.unpack('f', four_bytes)[0]
+                    print(motor_test_results[int(i/4)])
+
+                return 3
     return 0
 
 
@@ -203,6 +226,7 @@ def write_serial():
     global request_config_data
     global request_wp_data
     global send_mag_calib_data
+    global request_motor_test_data
 
     if send_gamepad_data:
 
@@ -304,7 +328,7 @@ def write_serial():
         cs1, cs2 = checksum_generate(packed_data, 1)
 
         packed_data = (struct.pack('B', 252)
-                       + struct.pack('B',1 + 3)
+                       + struct.pack('B', 1 + 3)
                        + packed_data
                        + struct.pack('B', cs1)
                        + struct.pack('B', cs2)
@@ -348,6 +372,25 @@ def write_serial():
                        + struct.pack('B', footer))
 
         print(packed_data.hex())
+        serial_instance.write(packed_data)
+
+    elif request_motor_test_data:
+
+        request_motor_test_data = False
+        send_gamepad_data = True
+
+        print("motor test requested!!")
+        packed_data = bytes()
+        packed_data = packed_data + struct.pack('B', motor_test_number)
+        cs1, cs2 = checksum_generate(packed_data, 1)
+
+        packed_data = (struct.pack('B', 250)
+                       + struct.pack('B', 1 + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', 0x69))
+
         serial_instance.write(packed_data)
 
 
