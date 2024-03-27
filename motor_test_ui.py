@@ -56,7 +56,7 @@ def show_motor_test_window():
         motor_test_window.grab_set()
         motor_test_window.resizable(False, False)
 
-        drone_img = ctk.CTkImage(Image.open("motor_test_drone_image.png"), size=(280, 280))
+        drone_img = ctk.CTkImage(Image.open("images/motor_test_drone_image.png"), size=(280, 280))
         # MAIN FRAME
         main_frame = ctk.CTkFrame(master=motor_test_window, width=480, height=480, corner_radius=10)
         main_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)

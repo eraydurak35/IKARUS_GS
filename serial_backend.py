@@ -212,9 +212,10 @@ def read_serial():
                     four_bytes[2] = data_bytes[i + 2]
                     four_bytes[3] = data_bytes[i + 3]
                     motor_test_results[int(i/4)] = struct.unpack('f', four_bytes)[0]
-                    print(motor_test_results[int(i/4)])
 
                 return 3
+            else:
+                print("checksum error motor test!!")
     return 0
 
 
@@ -322,7 +323,6 @@ def write_serial():
 
         request_wp_data = False
         send_gamepad_data = True
-        print("wp requested!!")
         packed_data = bytes()
         packed_data = packed_data + struct.pack('B', 20)
         cs1, cs2 = checksum_generate(packed_data, 1)
@@ -340,7 +340,6 @@ def write_serial():
 
         send_mag_calib_data = False
         send_gamepad_data = True
-        print("mag_calib_send!!")
         packed_data = bytes()
 
         packed_data = packed_data + struct.pack('f', mag_calibration.mag_bias[0][0])
@@ -378,8 +377,6 @@ def write_serial():
 
         request_motor_test_data = False
         send_gamepad_data = True
-
-        print("motor test requested!!")
         packed_data = bytes()
         packed_data = packed_data + struct.pack('B', motor_test_number)
         cs1, cs2 = checksum_generate(packed_data, 1)

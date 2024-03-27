@@ -33,31 +33,61 @@ class MainWindow:
         self.isBlackBoxRecording = False
         self.map_follow_drone = False
 
-        self.close_img = ctk.CTkImage(Image.open("Close.png"), size=(30, 30))
-        self.config_img = ctk.CTkImage(Image.open("settings_1.png"), size=(40, 40))
-        self.alt_hold_active_img = ctk.CTkImage(Image.open("AltHold_active.png"), size=(40, 40))
-        self.alt_hold_passive_img = ctk.CTkImage(Image.open("AltHold_passive.png"), size=(40, 40))
-        self.pos_hold_active_img = ctk.CTkImage(Image.open("PositionHold_active.png"), size=(40, 40))
-        self.pos_hold_passive_img = ctk.CTkImage(Image.open("PositionHold_passive.png"), size=(40, 40))
-        self.blackbox_active_img = ctk.CTkImage(Image.open("blackbox_active.png"), size=(40, 40))
-        self.blackbox_passive_img = ctk.CTkImage(Image.open("blackbox_passive.png"), size=(40, 40))
-        self.center_map_img = ctk.CTkImage(Image.open("focus.png"), size=(20, 20))
-        self.map_follow_drone_img = ctk.CTkImage(Image.open("follow_drone.png"), size=(20, 20))
-        self.waypoint_active_img = ctk.CTkImage(Image.open("waypoint_active.png"), size=(40, 40))
-        self.waypoint_passive_img = ctk.CTkImage(Image.open("waypoint_passive.png"), size=(40, 40))
-        self.request_wp_img = ctk.CTkImage(Image.open("read_wp_icon_.png"), size=(20, 20))
+        self.close_img = ctk.CTkImage(Image.open("images/Close.png"), size=(30, 30))
+        self.config_img = ctk.CTkImage(Image.open("images/settings_1.png"), size=(40, 40))
+        self.alt_hold_active_img = ctk.CTkImage(Image.open("images/AltHold_active.png"), size=(40, 40))
+        self.alt_hold_passive_img = ctk.CTkImage(Image.open("images/AltHold_passive.png"), size=(40, 40))
+        self.pos_hold_active_img = ctk.CTkImage(Image.open("images/PositionHold_active.png"), size=(40, 40))
+        self.pos_hold_passive_img = ctk.CTkImage(Image.open("images/PositionHold_passive.png"), size=(40, 40))
+        self.blackbox_active_img = ctk.CTkImage(Image.open("images/blackbox_active.png"), size=(40, 40))
+        self.blackbox_passive_img = ctk.CTkImage(Image.open("images/blackbox_passive.png"), size=(40, 40))
+        self.center_map_img = ctk.CTkImage(Image.open("images/focus.png"), size=(20, 20))
+        self.map_follow_drone_img = ctk.CTkImage(Image.open("images/follow_drone.png"), size=(20, 20))
+        self.waypoint_active_img = ctk.CTkImage(Image.open("images/waypoint_active.png"), size=(40, 40))
+        self.waypoint_passive_img = ctk.CTkImage(Image.open("images/waypoint_passive.png"), size=(40, 40))
+        self.request_wp_img = ctk.CTkImage(Image.open("images/read_wp_icon_.png"), size=(20, 20))
 
-        self.drone_0_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_0_deg.png").resize((45, 45)))
-        self.drone_45_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_45_deg.png").resize((45, 45)))
-        self.drone_90_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_90_deg.png").resize((45, 45)))
-        self.drone_135_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_135_deg.png").resize((45, 45)))
-        self.drone_180_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_180_deg.png").resize((45, 45)))
-        self.drone_225_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_225_deg.png").resize((45, 45)))
-        self.drone_270_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_270_deg.png").resize((45, 45)))
-        self.drone_315_deg_img = ImageTk.PhotoImage(Image.open("drone_icon_315_deg.png").resize((45, 45)))
-        self.location_img = ImageTk.PhotoImage(Image.open("location_icon.png").resize((40, 40)))
-        self.drone_origin_img = ImageTk.PhotoImage(Image.open("drone_origin.png").resize((45, 45)))
-        self.target_location_img = ImageTk.PhotoImage(Image.open("target_location_icon.png").resize((35, 35)))
+        self.drone_0_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_0_deg.png").resize((90, 90)))
+        self.drone_10_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_10_deg.png").resize((90, 90)))
+        self.drone_20_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_20_deg.png").resize((90, 90)))
+        self.drone_30_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_30_deg.png").resize((90, 90)))
+        self.drone_40_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_40_deg.png").resize((90, 90)))
+        self.drone_50_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_50_deg.png").resize((90, 90)))
+        self.drone_60_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_60_deg.png").resize((90, 90)))
+        self.drone_70_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_70_deg.png").resize((90, 90)))
+        self.drone_80_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_80_deg.png").resize((90, 90)))
+        self.drone_90_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_90_deg.png").resize((90, 90)))
+        self.drone_100_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_100_deg.png").resize((90, 90)))
+        self.drone_110_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_110_deg.png").resize((90, 90)))
+        self.drone_120_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_120_deg.png").resize((90, 90)))
+        self.drone_130_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_130_deg.png").resize((90, 90)))
+        self.drone_140_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_140_deg.png").resize((90, 90)))
+        self.drone_150_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_150_deg.png").resize((90, 90)))
+        self.drone_160_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_160_deg.png").resize((90, 90)))
+        self.drone_170_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_170_deg.png").resize((90, 90)))
+        self.drone_180_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_180_deg.png").resize((90, 90)))
+        self.drone_190_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_190_deg.png").resize((90, 90)))
+        self.drone_200_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_200_deg.png").resize((90, 90)))
+        self.drone_210_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_210_deg.png").resize((90, 90)))
+        self.drone_220_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_220_deg.png").resize((90, 90)))
+        self.drone_230_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_230_deg.png").resize((90, 90)))
+        self.drone_240_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_240_deg.png").resize((90, 90)))
+        self.drone_250_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_250_deg.png").resize((90, 90)))
+        self.drone_260_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_260_deg.png").resize((90, 90)))
+        self.drone_270_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_270_deg.png").resize((90, 90)))
+        self.drone_280_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_280_deg.png").resize((90, 90)))
+        self.drone_290_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_290_deg.png").resize((90, 90)))
+        self.drone_300_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_300_deg.png").resize((90, 90)))
+        self.drone_310_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_310_deg.png").resize((90, 90)))
+        self.drone_320_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_320_deg.png").resize((90, 90)))
+        self.drone_330_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_330_deg.png").resize((90, 90)))
+        self.drone_340_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_340_deg.png").resize((90, 90)))
+        self.drone_350_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_350_deg.png").resize((90, 90)))
+
+
+        self.location_img = ImageTk.PhotoImage(Image.open("images/location_icon.png").resize((45, 45)))
+        self.drone_origin_img = ImageTk.PhotoImage(Image.open("images/home_location.png").resize((45, 45)))
+        self.target_location_img = ImageTk.PhotoImage(Image.open("images/target_pointer.png").resize((35, 40)))
 
         # MAP FRAME
         self.map_frame = ctk.CTkFrame(master=self.root, width=1600, height=830,
@@ -126,10 +156,10 @@ class MainWindow:
                                                                 font=("Arial", 20, "bold"))
 
         self.drone_origin_marker = self.map_widget.set_marker(0, 0, text="", text_color="gray1",
-                                                              icon=self.drone_origin_img,
+                                                              icon=self.drone_origin_img, icon_anchor="s",
                                                               font=("Arial", 20, "bold"))
         self.target_location_marker = self.map_widget.set_marker(0, 0, text="", text_color="gray1",
-                                                                 icon=self.target_location_img, icon_anchor="center",
+                                                                 icon=self.target_location_img, icon_anchor="n",
                                                                  font=("Arial", 20, "bold"))
 
         self.center_map_button = ctk.CTkButton(master=self.map_frame, width=20, height=20, corner_radius=0,
@@ -202,7 +232,8 @@ class MainWindow:
         self.waypoint_button.place(relx=0.41, rely=0.5, anchor=tkinter.CENTER)
 
         self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
-                                         text_color="black", fg_color="#dcdde1", text="Save", command=self.save_on_click,
+                                         text_color="black", fg_color="#dcdde1", text="Save",
+                                         command=self.save_on_click,
                                          font=("Arial", 14, "bold"))
 
         self.save_button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
@@ -214,7 +245,8 @@ class MainWindow:
         self.calibrate_mag_button.place(relx=0.63, rely=0.5, anchor=tkinter.CENTER)
 
         self.motor_test_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
-                                               text_color="black", fg_color="#dcdde1", font=("Arial", 15, "bold"), text="Motor Test",
+                                               text_color="black", fg_color="#dcdde1", font=("Arial", 15, "bold"),
+                                               text="Motor Test",
                                                command=motor_test_ui.show_motor_test_window)
         self.motor_test_button.place(relx=0.79, rely=0.5, anchor=tkinter.CENTER)
 
@@ -708,22 +740,97 @@ class MainWindow:
 
         self.drone_location_marker.set_text(f"{telemetry_data_dict['altitude_calibrated']:.1f}m")
 
-        if 22.5 <= telemetry_data_dict["heading"] < 67.5:
-            self.drone_location_marker.change_icon(self.drone_45_deg_img)
-        elif 67.5 <= telemetry_data_dict["heading"] < 112.5:
-            self.drone_location_marker.change_icon(self.drone_90_deg_img)
-        elif 112.5 <= telemetry_data_dict["heading"] < 157.5:
-            self.drone_location_marker.change_icon(self.drone_135_deg_img)
-        elif 157.5 <= telemetry_data_dict["heading"] < 202.5:
-            self.drone_location_marker.change_icon(self.drone_180_deg_img)
-        elif 202.5 <= telemetry_data_dict["heading"] < 247.5:
-            self.drone_location_marker.change_icon(self.drone_225_deg_img)
-        elif 247.5 <= telemetry_data_dict["heading"] < 292.5:
-            self.drone_location_marker.change_icon(self.drone_270_deg_img)
-        elif 292.5 <= telemetry_data_dict["heading"] < 337.5:
-            self.drone_location_marker.change_icon(self.drone_315_deg_img)
-        else:
+        heading_round_to_10 = round(telemetry_data_dict["heading"], -1)
+
+        if heading_round_to_10 == 0:
             self.drone_location_marker.change_icon(self.drone_0_deg_img)
+        elif heading_round_to_10 == 10:
+            self.drone_location_marker.change_icon(self.drone_10_deg_img)
+        elif heading_round_to_10 == 20:
+            self.drone_location_marker.change_icon(self.drone_20_deg_img)
+        elif heading_round_to_10 == 30:
+            self.drone_location_marker.change_icon(self.drone_30_deg_img)
+        elif heading_round_to_10 == 40:
+            self.drone_location_marker.change_icon(self.drone_40_deg_img)
+        elif heading_round_to_10 == 50:
+            self.drone_location_marker.change_icon(self.drone_50_deg_img)
+        elif heading_round_to_10 == 60:
+            self.drone_location_marker.change_icon(self.drone_60_deg_img)
+        elif heading_round_to_10 == 70:
+            self.drone_location_marker.change_icon(self.drone_70_deg_img)
+        elif heading_round_to_10 == 80:
+            self.drone_location_marker.change_icon(self.drone_80_deg_img)
+        elif heading_round_to_10 == 90:
+            self.drone_location_marker.change_icon(self.drone_90_deg_img)
+        elif heading_round_to_10 == 100:
+            self.drone_location_marker.change_icon(self.drone_100_deg_img)
+        elif heading_round_to_10 == 110:
+            self.drone_location_marker.change_icon(self.drone_110_deg_img)
+        elif heading_round_to_10 == 120:
+            self.drone_location_marker.change_icon(self.drone_120_deg_img)
+        elif heading_round_to_10 == 130:
+            self.drone_location_marker.change_icon(self.drone_130_deg_img)
+        elif heading_round_to_10 == 140:
+            self.drone_location_marker.change_icon(self.drone_140_deg_img)
+        elif heading_round_to_10 == 150:
+            self.drone_location_marker.change_icon(self.drone_150_deg_img)
+        elif heading_round_to_10 == 160:
+            self.drone_location_marker.change_icon(self.drone_160_deg_img)
+        elif heading_round_to_10 == 170:
+            self.drone_location_marker.change_icon(self.drone_170_deg_img)
+        elif heading_round_to_10 == 180:
+            self.drone_location_marker.change_icon(self.drone_180_deg_img)
+        elif heading_round_to_10 == 190:
+            self.drone_location_marker.change_icon(self.drone_190_deg_img)
+        elif heading_round_to_10 == 200:
+            self.drone_location_marker.change_icon(self.drone_200_deg_img)
+        elif heading_round_to_10 == 210:
+            self.drone_location_marker.change_icon(self.drone_210_deg_img)
+        elif heading_round_to_10 == 220:
+            self.drone_location_marker.change_icon(self.drone_220_deg_img)
+        elif heading_round_to_10 == 230:
+            self.drone_location_marker.change_icon(self.drone_230_deg_img)
+        elif heading_round_to_10 == 240:
+            self.drone_location_marker.change_icon(self.drone_240_deg_img)
+        elif heading_round_to_10 == 250:
+            self.drone_location_marker.change_icon(self.drone_250_deg_img)
+        elif heading_round_to_10 == 260:
+            self.drone_location_marker.change_icon(self.drone_260_deg_img)
+        elif heading_round_to_10 == 270:
+            self.drone_location_marker.change_icon(self.drone_270_deg_img)
+        elif heading_round_to_10 == 280:
+            self.drone_location_marker.change_icon(self.drone_280_deg_img)
+        elif heading_round_to_10 == 290:
+            self.drone_location_marker.change_icon(self.drone_290_deg_img)
+        elif heading_round_to_10 == 300:
+            self.drone_location_marker.change_icon(self.drone_300_deg_img)
+        elif heading_round_to_10 == 310:
+            self.drone_location_marker.change_icon(self.drone_310_deg_img)
+        elif heading_round_to_10 == 320:
+            self.drone_location_marker.change_icon(self.drone_310_deg_img)
+        elif heading_round_to_10 == 330:
+            self.drone_location_marker.change_icon(self.drone_330_deg_img)
+        elif heading_round_to_10 == 340:
+            self.drone_location_marker.change_icon(self.drone_340_deg_img)
+        elif heading_round_to_10 == 350:
+            self.drone_location_marker.change_icon(self.drone_350_deg_img)
+
+        # if 22.5 <= telemetry_data_dict["heading"] < 67.5:
+        #     self.drone_location_marker.change_icon(self.drone_45_deg_img)
+        # elif 67.5 <= telemetry_data_dict["heading"] < 112.5:
+        #     self.drone_location_marker.change_icon(self.drone_90_deg_img)
+        # elif 112.5 <= telemetry_data_dict["heading"] < 157.5:
+        #     self.drone_location_marker.change_icon(self.drone_135_deg_img)
+        # elif 157.5 <= telemetry_data_dict["heading"] < 202.5:
+        #     self.drone_location_marker.change_icon(self.drone_180_deg_img)
+        # elif 202.5 <= telemetry_data_dict["heading"] < 247.5:
+        #     self.drone_location_marker.change_icon(self.drone_225_deg_img)
+        # elif 247.5 <= telemetry_data_dict["heading"] < 292.5:
+        #     self.drone_location_marker.change_icon(self.drone_270_deg_img)
+        # elif 292.5 <= telemetry_data_dict["heading"] < 337.5:
+        #     self.drone_location_marker.change_icon(self.drone_315_deg_img)
+        # else:
+        #     self.drone_location_marker.change_icon(self.drone_0_deg_img)
 
         self.drone_location_marker.set_position(telemetry_data_dict["gps_latitude"],
                                                 telemetry_data_dict["gps_longitude"])
