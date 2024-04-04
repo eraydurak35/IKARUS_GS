@@ -14,6 +14,7 @@ import mag_calibration
 from tkinter import messagebox
 import voice_notify
 import motor_test_ui
+import acc_calibration
 
 
 class MainWindow:
@@ -24,6 +25,8 @@ class MainWindow:
         self.prev_arm_status = 0
         self.prev_origin_latitude = 0
         self.prev_origin_longitude = 0
+        self.prev_latitude = 0
+        self.prev_longitude = 0
         self.bb_auto_record = True
         self.root = ctk.CTk()
         self.root.geometry("1920x1080")
@@ -41,49 +44,85 @@ class MainWindow:
         self.pos_hold_passive_img = ctk.CTkImage(Image.open("images/PositionHold_passive.png"), size=(40, 40))
         self.blackbox_active_img = ctk.CTkImage(Image.open("images/blackbox_active.png"), size=(40, 40))
         self.blackbox_passive_img = ctk.CTkImage(Image.open("images/blackbox_passive.png"), size=(40, 40))
-        self.center_map_img = ctk.CTkImage(Image.open("images/focus.png"), size=(20, 20))
-        self.map_follow_drone_img = ctk.CTkImage(Image.open("images/follow_drone.png"), size=(20, 20))
+        self.center_drone_img = ctk.CTkImage(Image.open("images/focus_white.png"), size=(24, 24))
+        self.center_map_img = ctk.CTkImage(Image.open("images/center_map_white.png"), size=(24, 24))
         self.waypoint_active_img = ctk.CTkImage(Image.open("images/waypoint_active.png"), size=(40, 40))
         self.waypoint_passive_img = ctk.CTkImage(Image.open("images/waypoint_passive.png"), size=(40, 40))
-        self.request_wp_img = ctk.CTkImage(Image.open("images/read_wp_icon_.png"), size=(20, 20))
+        self.request_wp_img = ctk.CTkImage(Image.open("images/recycling-point_white.png"), size=(24, 24))
+        self.delete_trail_img = ctk.CTkImage(Image.open("images/delete_trail.png"), size=(24, 24))
 
-        self.drone_0_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_0_deg.png").resize((90, 90)))
-        self.drone_10_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_10_deg.png").resize((90, 90)))
-        self.drone_20_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_20_deg.png").resize((90, 90)))
-        self.drone_30_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_30_deg.png").resize((90, 90)))
-        self.drone_40_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_40_deg.png").resize((90, 90)))
-        self.drone_50_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_50_deg.png").resize((90, 90)))
-        self.drone_60_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_60_deg.png").resize((90, 90)))
-        self.drone_70_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_70_deg.png").resize((90, 90)))
-        self.drone_80_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_80_deg.png").resize((90, 90)))
-        self.drone_90_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_90_deg.png").resize((90, 90)))
-        self.drone_100_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_100_deg.png").resize((90, 90)))
-        self.drone_110_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_110_deg.png").resize((90, 90)))
-        self.drone_120_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_120_deg.png").resize((90, 90)))
-        self.drone_130_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_130_deg.png").resize((90, 90)))
-        self.drone_140_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_140_deg.png").resize((90, 90)))
-        self.drone_150_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_150_deg.png").resize((90, 90)))
-        self.drone_160_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_160_deg.png").resize((90, 90)))
-        self.drone_170_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_170_deg.png").resize((90, 90)))
-        self.drone_180_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_180_deg.png").resize((90, 90)))
-        self.drone_190_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_190_deg.png").resize((90, 90)))
-        self.drone_200_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_200_deg.png").resize((90, 90)))
-        self.drone_210_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_210_deg.png").resize((90, 90)))
-        self.drone_220_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_220_deg.png").resize((90, 90)))
-        self.drone_230_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_230_deg.png").resize((90, 90)))
-        self.drone_240_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_240_deg.png").resize((90, 90)))
-        self.drone_250_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_250_deg.png").resize((90, 90)))
-        self.drone_260_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_260_deg.png").resize((90, 90)))
-        self.drone_270_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_270_deg.png").resize((90, 90)))
-        self.drone_280_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_280_deg.png").resize((90, 90)))
-        self.drone_290_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_290_deg.png").resize((90, 90)))
-        self.drone_300_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_300_deg.png").resize((90, 90)))
-        self.drone_310_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_310_deg.png").resize((90, 90)))
-        self.drone_320_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_320_deg.png").resize((90, 90)))
-        self.drone_330_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_330_deg.png").resize((90, 90)))
-        self.drone_340_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_340_deg.png").resize((90, 90)))
-        self.drone_350_deg_img = ImageTk.PhotoImage(Image.open("images/drone_pos/drone_pos_icon_350_deg.png").resize((90, 90)))
-
+        self.drone_0_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_0_deg.png").resize((90, 90)))
+        self.drone_10_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_10_deg.png").resize((90, 90)))
+        self.drone_20_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_20_deg.png").resize((90, 90)))
+        self.drone_30_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_30_deg.png").resize((90, 90)))
+        self.drone_40_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_40_deg.png").resize((90, 90)))
+        self.drone_50_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_50_deg.png").resize((90, 90)))
+        self.drone_60_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_60_deg.png").resize((90, 90)))
+        self.drone_70_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_70_deg.png").resize((90, 90)))
+        self.drone_80_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_80_deg.png").resize((90, 90)))
+        self.drone_90_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_90_deg.png").resize((90, 90)))
+        self.drone_100_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_100_deg.png").resize((90, 90)))
+        self.drone_110_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_110_deg.png").resize((90, 90)))
+        self.drone_120_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_120_deg.png").resize((90, 90)))
+        self.drone_130_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_130_deg.png").resize((90, 90)))
+        self.drone_140_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_140_deg.png").resize((90, 90)))
+        self.drone_150_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_150_deg.png").resize((90, 90)))
+        self.drone_160_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_160_deg.png").resize((90, 90)))
+        self.drone_170_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_170_deg.png").resize((90, 90)))
+        self.drone_180_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_180_deg.png").resize((90, 90)))
+        self.drone_190_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_190_deg.png").resize((90, 90)))
+        self.drone_200_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_200_deg.png").resize((90, 90)))
+        self.drone_210_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_210_deg.png").resize((90, 90)))
+        self.drone_220_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_220_deg.png").resize((90, 90)))
+        self.drone_230_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_230_deg.png").resize((90, 90)))
+        self.drone_240_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_240_deg.png").resize((90, 90)))
+        self.drone_250_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_250_deg.png").resize((90, 90)))
+        self.drone_260_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_260_deg.png").resize((90, 90)))
+        self.drone_270_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_270_deg.png").resize((90, 90)))
+        self.drone_280_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_280_deg.png").resize((90, 90)))
+        self.drone_290_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_290_deg.png").resize((90, 90)))
+        self.drone_300_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_300_deg.png").resize((90, 90)))
+        self.drone_310_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_310_deg.png").resize((90, 90)))
+        self.drone_320_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_320_deg.png").resize((90, 90)))
+        self.drone_330_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_330_deg.png").resize((90, 90)))
+        self.drone_340_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_340_deg.png").resize((90, 90)))
+        self.drone_350_deg_img = ImageTk.PhotoImage(
+            Image.open("images/drone_pos/drone_pos_icon_350_deg.png").resize((90, 90)))
 
         self.location_img = ImageTk.PhotoImage(Image.open("images/location_icon.png").resize((45, 45)))
         self.drone_origin_img = ImageTk.PhotoImage(Image.open("images/home_location.png").resize((45, 45)))
@@ -102,7 +141,7 @@ class MainWindow:
 
         self.map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
         self.map_widget.set_position(39.110946, 27.187785)
-        self.map_widget.set_zoom(17)
+        # self.map_widget.set_zoom(17)
         self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
 
         self.map_widget.add_right_click_menu_command(label="Add WP",
@@ -149,7 +188,9 @@ class MainWindow:
                                                      command=write_waypoints,
                                                      pass_coords=False)
 
-        self.waypoint_path = self.map_widget.set_path([(0, 0), (0, 0)])
+        self.waypoint_path = self.map_widget.set_path([(0, 0), (0, 0)], color="red", width=5)
+
+        self.drone_path = self.map_widget.set_path([(0, 0), (0, 0)], color="lime green", width=5)
 
         self.drone_location_marker = self.map_widget.set_marker(0, 0, text="0.0m", text_color="gray1",
                                                                 icon=self.drone_0_deg_img,
@@ -162,22 +203,28 @@ class MainWindow:
                                                                  icon=self.target_location_img, icon_anchor="n",
                                                                  font=("Arial", 20, "bold"))
 
-        self.center_map_button = ctk.CTkButton(master=self.map_frame, width=20, height=20, corner_radius=0,
-                                               fg_color="white", text="",
-                                               image=self.center_map_img,
-                                               command=self.center_map)
-        self.center_map_button.place(relx=0.98, rely=0.97, anchor=tkinter.CENTER)
-
-        self.map_follow_drone_button = ctk.CTkButton(master=self.map_frame, width=20, height=20, corner_radius=0,
-                                                     fg_color="white", text="",
-                                                     image=self.map_follow_drone_img,
-                                                     command=self.map_follow_drone_func)
-        self.map_follow_drone_button.place(relx=0.96, rely=0.97, anchor=tkinter.CENTER)
-
-        self.map_request_wp_button = ctk.CTkButton(master=self.map_frame, width=20, height=20, corner_radius=0,
-                                                   fg_color="white", text="",
+        self.map_request_wp_button = ctk.CTkButton(master=self.map_frame, width=24, height=24, corner_radius=0,
+                                                   fg_color="#333333", text="", hover_color="#7f7f7f",
                                                    image=self.request_wp_img, command=read_waypoints)
-        self.map_request_wp_button.place(relx=0.94, rely=0.97, anchor=tkinter.CENTER)
+        self.map_request_wp_button.place(relx=0.021, rely=0.14, anchor=tkinter.CENTER)
+
+        self.center_drone_button = ctk.CTkButton(master=self.map_frame, width=24, height=24, corner_radius=0,
+                                                 fg_color="#333333", text="", hover_color="#7f7f7f",
+                                                 image=self.center_drone_img,
+                                                 command=self.center_drone)
+        self.center_drone_button.place(relx=0.021, rely=0.188, anchor=tkinter.CENTER)
+
+        self.center_map_button = ctk.CTkButton(master=self.map_frame, width=20, height=20, corner_radius=0,
+                                               fg_color="#333333", text="", hover_color="#7f7f7f",
+                                               image=self.center_map_img,
+                                               command=self.center_map_func)
+        self.center_map_button.place(relx=0.021, rely=0.236, anchor=tkinter.CENTER)
+
+        self.delete_trail_button = ctk.CTkButton(master=self.map_frame, width=20, height=20, corner_radius=0,
+                                                 fg_color="#333333", text="", hover_color="#7f7f7f",
+                                                 image=self.delete_trail_img,
+                                                 command=self.delete_trail_func)
+        self.delete_trail_button.place(relx=0.021, rely=0.284, anchor=tkinter.CENTER)
 
         self.close_button = ctk.CTkButton(master=self.root, width=30, height=30, corner_radius=0,
                                           fg_color="transparent", text="",
@@ -191,9 +238,9 @@ class MainWindow:
         self.voice_notification_checkbox.place(relx=0.828, rely=0.07, anchor=tkinter.CENTER)
 
         # UTILITY FRAME /*******************************************************************************/
-        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=710, height=95,
+        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=860, height=95,
                                               corner_radius=10)
-        self.arm_utility_frame.place(relx=0.189, rely=0.053, anchor=tkinter.CENTER)
+        self.arm_utility_frame.place(relx=0.23, rely=0.053, anchor=tkinter.CENTER)
 
         self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
                                            command=show_config_window, image=self.config_img, text="",
@@ -204,56 +251,62 @@ class MainWindow:
                                              command=self.blackbox, text="", state="enabled", fg_color="transparent",
                                              image=self.blackbox_passive_img)
 
-        self.blackbox_button.place(relx=0.14, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_button.place(relx=0.12, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_auto_record_button = ctk.CTkButton(master=self.arm_utility_frame, width=10, height=40,
                                                          corner_radius=5,
                                                          command=self.auto_blackbox, text="", state="enabled",
                                                          fg_color="green")
 
-        self.blackbox_auto_record_button.place(relx=0.18, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_auto_record_button.place(relx=0.16, rely=0.5, anchor=tkinter.CENTER)
 
         self.alt_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.alt_hold_passive_img)
 
-        self.alt_hold_button.place(relx=0.25, rely=0.5, anchor=tkinter.CENTER)
+        self.alt_hold_button.place(relx=0.22, rely=0.5, anchor=tkinter.CENTER)
 
         self.pos_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.pos_hold_passive_img)
 
-        self.pos_hold_button.place(relx=0.33, rely=0.5, anchor=tkinter.CENTER)
+        self.pos_hold_button.place(relx=0.29, rely=0.5, anchor=tkinter.CENTER)
 
         self.waypoint_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.waypoint_passive_img)
 
-        self.waypoint_button.place(relx=0.41, rely=0.5, anchor=tkinter.CENTER)
+        self.waypoint_button.place(relx=0.36, rely=0.5, anchor=tkinter.CENTER)
 
         self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                          text_color="black", fg_color="#dcdde1", text="Save",
                                          command=self.save_on_click,
                                          font=("Arial", 14, "bold"))
 
-        self.save_button.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        self.save_button.place(relx=0.44, rely=0.5, anchor=tkinter.CENTER)
 
-        self.calibrate_mag_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
+        self.calibrate_mag_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Mag Cal",
                                                   command=self.calibrate_mag_event, font=("Arial", 14, "bold"))
 
-        self.calibrate_mag_button.place(relx=0.63, rely=0.5, anchor=tkinter.CENTER)
+        self.calibrate_mag_button.place(relx=0.55, rely=0.5, anchor=tkinter.CENTER)
+
+        self.calibrate_acc_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
+                                                  text_color="black", fg_color="#dcdde1", text="Start Acc Cal",
+                                                  command=self.calibrate_acc_event, font=("Arial", 14, "bold"))
+
+        self.calibrate_acc_button.place(relx=0.7, rely=0.5, anchor=tkinter.CENTER)
 
         self.motor_test_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
-                                               text_color="black", fg_color="#dcdde1", font=("Arial", 15, "bold"),
+                                               text_color="black", fg_color="#dcdde1", font=("Arial", 14, "bold"),
                                                text="Motor Test",
                                                command=motor_test_ui.show_motor_test_window)
-        self.motor_test_button.place(relx=0.79, rely=0.5, anchor=tkinter.CENTER)
+        self.motor_test_button.place(relx=0.83, rely=0.5, anchor=tkinter.CENTER)
 
         self.wp_altitude_input = ctk.CTkEntry(master=self.arm_utility_frame, width=60, height=40, corner_radius=5,
                                               placeholder_text="WP Alt")
 
-        self.wp_altitude_input.place(relx=0.93, rely=0.5, anchor=tkinter.CENTER)
+        self.wp_altitude_input.place(relx=0.94, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME  /*********************************************************************************/
         self.data_frame = ctk.CTkFrame(master=self.root, width=290, height=1060,
@@ -674,6 +727,11 @@ class MainWindow:
                                          font=("Arial", 18, "bold"))
         self.vel_2d_label.place(relx=0.8, rely=0.7, anchor=tkinter.CENTER)
 
+    def delete_trail_func(self):
+
+        drone_path_coordinates.clear()
+        self.drone_path.set_position_list([(0, 0), (0, 0)])
+
     def update_ui(self):
         self.root.mainloop()
 
@@ -815,28 +873,11 @@ class MainWindow:
         elif heading_round_to_10 == 350:
             self.drone_location_marker.change_icon(self.drone_350_deg_img)
 
-        # if 22.5 <= telemetry_data_dict["heading"] < 67.5:
-        #     self.drone_location_marker.change_icon(self.drone_45_deg_img)
-        # elif 67.5 <= telemetry_data_dict["heading"] < 112.5:
-        #     self.drone_location_marker.change_icon(self.drone_90_deg_img)
-        # elif 112.5 <= telemetry_data_dict["heading"] < 157.5:
-        #     self.drone_location_marker.change_icon(self.drone_135_deg_img)
-        # elif 157.5 <= telemetry_data_dict["heading"] < 202.5:
-        #     self.drone_location_marker.change_icon(self.drone_180_deg_img)
-        # elif 202.5 <= telemetry_data_dict["heading"] < 247.5:
-        #     self.drone_location_marker.change_icon(self.drone_225_deg_img)
-        # elif 247.5 <= telemetry_data_dict["heading"] < 292.5:
-        #     self.drone_location_marker.change_icon(self.drone_270_deg_img)
-        # elif 292.5 <= telemetry_data_dict["heading"] < 337.5:
-        #     self.drone_location_marker.change_icon(self.drone_315_deg_img)
-        # else:
-        #     self.drone_location_marker.change_icon(self.drone_0_deg_img)
-
         self.drone_location_marker.set_position(telemetry_data_dict["gps_latitude"],
                                                 telemetry_data_dict["gps_longitude"])
         if self.map_follow_drone:
-            self.map_widget.set_position(telemetry_data_dict["gps_latitude"],
-                                         telemetry_data_dict["gps_longitude"])
+            self.map_widget.set_position(float(telemetry_data_dict["gps_latitude"]),
+                                         float(telemetry_data_dict["gps_longitude"]))
 
         self.latitude_data_label.configure(text=f"Latitude:            {telemetry_data_dict['gps_latitude']:.7f}")
         self.longitude_data_label.configure(text=f"Longitude:        {telemetry_data_dict['gps_longitude']:.7f}")
@@ -911,6 +952,23 @@ class MainWindow:
 
         self.target_location_marker.set_position(telemetry_data_dict["target_latitude"],
                                                  telemetry_data_dict["target_longitude"])
+
+        ####################################################################################
+
+        if ((abs(telemetry_data_dict["gps_latitude"] - self.prev_latitude) > 0.00001
+             or abs(telemetry_data_dict["gps_longitude"] - self.prev_longitude) > 0.00001)
+                and (telemetry_data_dict["gps_latitude"] != 0
+                     or telemetry_data_dict["gps_longitude"] != 0)):
+            
+            drone_path_coordinates.append((telemetry_data_dict["gps_latitude"],
+                                           telemetry_data_dict["gps_longitude"]))
+
+            if len(drone_path_coordinates) > 1:
+                self.drone_path.set_position_list(drone_path_coordinates)
+
+            print(len(drone_path_coordinates))
+            self.prev_latitude = telemetry_data_dict["gps_latitude"]
+            self.prev_longitude = telemetry_data_dict["gps_longitude"]
 
     def add_waypoint_event(self, coords):
         global waypoint_counter, waypoint_altitude
@@ -999,22 +1057,19 @@ class MainWindow:
         else:
             self.waypoint_path.set_position_list(waypoint_coordinates)
 
-    def center_map(self):
+    def center_drone(self):
         # This has to be 2 times to work
-        self.map_widget.set_position(39.110946, 27.187785)
-        self.map_widget.set_zoom(17)
-        self.map_widget.set_position(39.110946, 27.187785)
-        self.map_widget.set_zoom(17)
+        self.map_widget.set_zoom(int(self.map_widget.zoom))
+        self.map_widget.set_position(float(telemetry_data_dict["gps_latitude"]),
+                                     float(telemetry_data_dict["gps_longitude"]))
+        self.map_widget.set_position(float(telemetry_data_dict["gps_latitude"]),
+                                     float(telemetry_data_dict["gps_longitude"]))
 
-    def map_follow_drone_func(self):
-        if self.map_follow_drone:
-            self.map_follow_drone = False
-            self.center_map_button.configure(state="enabled")
-            self.map_follow_drone_button.configure(fg_color="white")
-        else:
-            self.map_follow_drone = True
-            self.map_follow_drone_button.configure(fg_color="green")
-            self.center_map_button.configure(state="disabled")
+    def center_map_func(self):
+        # This has to be 2 times to work
+        self.map_widget.set_zoom(int(self.map_widget.zoom))
+        self.map_widget.set_position(39.110946, 27.187785)
+        self.map_widget.set_position(39.110946, 27.187785)
 
     def save_on_click(self):
         df = pd.DataFrame([telemetry_data_dict])
@@ -1037,8 +1092,9 @@ class MainWindow:
         else:
             self.blackbox_button.configure(image=self.blackbox_active_img)
             time_now = datetime.now()
-            serial_backend.blackbox_file_name = (str(time_now.day)
+            serial_backend.blackbox_file_name = (str(time_now.year)
                                                  + "_" + str(time_now.month)
+                                                 + "_" + str(time_now.day)
                                                  + "_" + str(time_now.hour)
                                                  + "_" + str(time_now.minute)
                                                  + "_" + str(time_now.second)
@@ -1070,6 +1126,33 @@ class MainWindow:
             else:
                 messagebox.showinfo("Error!", "Not enough data points gathered to perform calibration!!")
                 print("Not enough data points gathered to perform calibration!!")
+
+    def calibrate_acc_event(self):
+
+        if acc_calibration.state == 0:
+            response = messagebox.askokcancel("Start Acc Calibration", "Are you sure?")
+
+            if response:
+                serial_backend.acc_calib_values.clear()
+                serial_backend.acc_calib_values.append((telemetry_data_dict["acc_x_ms2"], telemetry_data_dict["acc_y_ms2"]))
+                self.calibrate_acc_button.configure(text="Turn 180°")
+                acc_calibration.state = 1
+
+        elif acc_calibration.state == 1:
+            serial_backend.acc_calib_values.append((telemetry_data_dict["acc_x_ms2"], telemetry_data_dict["acc_y_ms2"]))
+            self.calibrate_acc_button.configure(text="Start Acc Cal")
+            acc_calibration.state = 0
+            serial_backend.acc_calib_result.clear()
+            serial_backend.acc_calib_result.append((serial_backend.acc_calib_values[0][0] + serial_backend.acc_calib_values[1][0]) / 2)
+            serial_backend.acc_calib_result.append((serial_backend.acc_calib_values[0][1] + serial_backend.acc_calib_values[1][1]) / 2)
+
+            response = messagebox.askokcancel("Send Acc Calibration", f"X: {serial_backend.acc_calib_result[0]:.2f}   Y: {serial_backend.acc_calib_result[1]:.2f}")
+
+            if response:
+                serial_backend.send_gamepad_data = False
+                serial_backend.send_acc_calib_data = True
+
+            print(serial_backend.acc_calib_result)
 
     def close_application(self):
         self.isAppAlive = False
@@ -1107,8 +1190,10 @@ def write_waypoints():
 
 
 def read_waypoints():
-    serial_backend.send_gamepad_data = False
-    serial_backend.request_wp_data = True
+    response = messagebox.askokcancel("Read WP mission?", "Are you sure?")
+    if response:
+        serial_backend.send_gamepad_data = False
+        serial_backend.request_wp_data = True
 
 
 def dummy_func():

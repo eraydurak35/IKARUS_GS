@@ -15,6 +15,7 @@ send_gamepad_data = True
 send_config_data = False
 send_waypoints_data = False
 send_mag_calib_data = False
+send_acc_calib_data = False
 request_config_data = False
 request_wp_data = False
 blackbox_state = False
@@ -25,6 +26,8 @@ blackbox_file_name = ""
 mag_x_raw = []
 mag_y_raw = []
 mag_z_raw = []
+acc_calib_values = []
+acc_calib_result = []
 
 
 def port_init(com_port):
@@ -228,6 +231,7 @@ def write_serial():
     global request_wp_data
     global send_mag_calib_data
     global request_motor_test_data
+    global send_acc_calib_data
 
     if send_gamepad_data:
 
@@ -370,7 +374,6 @@ def write_serial():
                        + struct.pack('B', cs2)
                        + struct.pack('B', footer))
 
-        print(packed_data.hex())
         serial_instance.write(packed_data)
 
     elif request_motor_test_data:
@@ -390,6 +393,29 @@ def write_serial():
 
         serial_instance.write(packed_data)
 
+    elif send_acc_calib_data:
+
+        send_acc_calib_data = False
+        send_gamepad_data = True
+
+        packed_data = bytes()
+        packed_data = packed_data + struct.pack('f', acc_calib_result[0])
+        packed_data = packed_data + struct.pack('f', acc_calib_result[1])
+
+        size = 8
+        header = 249
+        footer = 0x69
+
+        cs1, cs2 = checksum_generate(packed_data, size)
+
+        packed_data = (struct.pack('B', header)
+                       + struct.pack('B', size + 3)
+                       + packed_data
+                       + struct.pack('B', cs1)
+                       + struct.pack('B', cs2)
+                       + struct.pack('B', footer))
+
+        serial_instance.write(packed_data)
 
 def checksum_generate(data_byte, size):
     data = bytearray(data_byte)
