@@ -25,6 +25,8 @@ class MainWindow:
         self.prev_arm_status = 0
         self.prev_origin_latitude = 0
         self.prev_origin_longitude = 0
+        self.prev_target_latitude = 0
+        self.prev_target_longitude = 0
         self.prev_latitude = 0
         self.prev_longitude = 0
         self.bb_auto_record = True
@@ -160,14 +162,6 @@ class MainWindow:
                                                      command=dummy_func,
                                                      pass_coords=False)
 
-        self.map_widget.add_right_click_menu_command(label="Redraw WP",
-                                                     command=self.redraw_waypoint_markers,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="",
-                                                     command=dummy_func,
-                                                     pass_coords=False)
-
         self.map_widget.add_right_click_menu_command(label="Delete WP",
                                                      command=self.delete_waypoint_event,
                                                      pass_coords=True)
@@ -238,79 +232,84 @@ class MainWindow:
         self.voice_notification_checkbox.place(relx=0.828, rely=0.07, anchor=tkinter.CENTER)
 
         # UTILITY FRAME /*******************************************************************************/
-        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=860, height=95,
+        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=950, height=95,
                                               corner_radius=10)
-        self.arm_utility_frame.place(relx=0.23, rely=0.053, anchor=tkinter.CENTER)
+        self.arm_utility_frame.place(relx=0.253, rely=0.053, anchor=tkinter.CENTER)
 
         self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
                                            command=show_config_window, image=self.config_img, text="",
                                            fg_color="transparent", state="enabled")
-        self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
+        self.config_button.place(relx=0.04, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              command=self.blackbox, text="", state="enabled", fg_color="transparent",
                                              image=self.blackbox_passive_img)
 
-        self.blackbox_button.place(relx=0.12, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_button.place(relx=0.11, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_auto_record_button = ctk.CTkButton(master=self.arm_utility_frame, width=10, height=40,
                                                          corner_radius=5,
                                                          command=self.auto_blackbox, text="", state="enabled",
                                                          fg_color="green")
 
-        self.blackbox_auto_record_button.place(relx=0.16, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_auto_record_button.place(relx=0.14, rely=0.5, anchor=tkinter.CENTER)
 
         self.alt_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.alt_hold_passive_img)
 
-        self.alt_hold_button.place(relx=0.22, rely=0.5, anchor=tkinter.CENTER)
+        self.alt_hold_button.place(relx=0.19, rely=0.5, anchor=tkinter.CENTER)
 
         self.pos_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.pos_hold_passive_img)
 
-        self.pos_hold_button.place(relx=0.29, rely=0.5, anchor=tkinter.CENTER)
+        self.pos_hold_button.place(relx=0.25, rely=0.5, anchor=tkinter.CENTER)
 
         self.waypoint_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.waypoint_passive_img)
 
-        self.waypoint_button.place(relx=0.36, rely=0.5, anchor=tkinter.CENTER)
+        self.waypoint_button.place(relx=0.31, rely=0.5, anchor=tkinter.CENTER)
 
         self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                          text_color="black", fg_color="#dcdde1", text="Save",
-                                         command=self.save_on_click,
+                                         command=save_on_click,
                                          font=("Arial", 14, "bold"))
 
-        self.save_button.place(relx=0.44, rely=0.5, anchor=tkinter.CENTER)
+        self.save_button.place(relx=0.38, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_mag_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Mag Cal",
                                                   command=self.calibrate_mag_event, font=("Arial", 14, "bold"))
 
-        self.calibrate_mag_button.place(relx=0.55, rely=0.5, anchor=tkinter.CENTER)
+        self.calibrate_mag_button.place(relx=0.48, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_acc_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Acc Cal",
                                                   command=self.calibrate_acc_event, font=("Arial", 14, "bold"))
 
-        self.calibrate_acc_button.place(relx=0.7, rely=0.5, anchor=tkinter.CENTER)
+        self.calibrate_acc_button.place(relx=0.62, rely=0.5, anchor=tkinter.CENTER)
 
         self.motor_test_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
                                                text_color="black", fg_color="#dcdde1", font=("Arial", 14, "bold"),
                                                text="Motor Test",
                                                command=motor_test_ui.show_motor_test_window)
-        self.motor_test_button.place(relx=0.83, rely=0.5, anchor=tkinter.CENTER)
+        self.motor_test_button.place(relx=0.74, rely=0.5, anchor=tkinter.CENTER)
 
         self.wp_altitude_input = ctk.CTkEntry(master=self.arm_utility_frame, width=60, height=40, corner_radius=5,
                                               placeholder_text="WP Alt")
 
-        self.wp_altitude_input.place(relx=0.94, rely=0.5, anchor=tkinter.CENTER)
+        self.wp_altitude_input.place(relx=0.84, rely=0.5, anchor=tkinter.CENTER)
+
+        self.wp_distance_label = ctk.CTkLabel(master=self.arm_utility_frame, width=65, height=45, corner_radius=5,
+                                              text="Distance:\n0.0m", font=("Arial", 15, "bold"), fg_color="#292929")
+
+        self.wp_distance_label.place(relx=0.93, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME  /*********************************************************************************/
         self.data_frame = ctk.CTkFrame(master=self.root, width=290, height=1060,
-                                       corner_radius=10)
+                                       corner_radius=20)
         self.data_frame.place(relx=0.92, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME 1  ///////////////////////////////////////////////////////////////////////////////////
@@ -476,9 +475,14 @@ class MainWindow:
                                                     text="Quality: 100",
                                                     font=("Arial", 16, "bold"))
         self.flow_quality_data_label.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
+
         # DATA FRAME 6 ////////////////////////////////////////////////////////////////////////////////
-        self.gps_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=365, corner_radius=10)
-        self.gps_frame.place(relx=0.5, rely=0.816, anchor=tkinter.CENTER)
+        self.gps_outer_frame = ctk.CTkFrame(master=self.data_frame, width=290, height=375, corner_radius=20,
+                                            fg_color="#880808")
+        self.gps_outer_frame.place(relx=0.5, rely=0.822, anchor=tkinter.CENTER)
+
+        self.gps_frame = ctk.CTkFrame(master=self.gps_outer_frame, width=270, height=355, corner_radius=10)
+        self.gps_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
         self.gps_label = ctk.CTkLabel(master=self.gps_frame, width=80, height=25,
                                       corner_radius=10, fg_color="gray35",
@@ -566,7 +570,7 @@ class MainWindow:
 
         # Bottom Frame  /******************************************************************************/
         self.bottom_frame = ctk.CTkFrame(master=self.root, width=1600, height=120,
-                                         corner_radius=10)
+                                         corner_radius=20)
         self.bottom_frame.place(relx=0.422, rely=0.935, anchor=tkinter.CENTER)
 
         # Utility Frame 1 //////////////////////////////////////////////////////////////////////////////
@@ -709,21 +713,21 @@ class MainWindow:
                                                    font=("Arial", 18, "bold"))
         self.target_longitude_label.place(relx=0.75, rely=0.3, anchor=tkinter.CENTER)
 
+        self.target_point_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
+                                               corner_radius=10,
+                                               text="T.Point: N/A",
+                                               font=("Arial", 18, "bold"))
+        self.target_point_label.place(relx=0.2, rely=0.7, anchor=tkinter.CENTER)
+
         self.dist_to_target_2d_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                                     corner_radius=10,
-                                                    text="D2D: 10.0",
+                                                    text="Dist: 10.0",
                                                     font=("Arial", 18, "bold"))
-        self.dist_to_target_2d_label.place(relx=0.2, rely=0.7, anchor=tkinter.CENTER)
-
-        self.dist_to_target_3d_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
-                                                    corner_radius=10,
-                                                    text="D3D: 10.0",
-                                                    font=("Arial", 18, "bold"))
-        self.dist_to_target_3d_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
+        self.dist_to_target_2d_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
         self.vel_2d_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                          corner_radius=10,
-                                         text="V2D: 1.0",
+                                         text="Vel: 1.0",
                                          font=("Arial", 18, "bold"))
         self.vel_2d_label.place(relx=0.8, rely=0.7, anchor=tkinter.CENTER)
 
@@ -737,9 +741,12 @@ class MainWindow:
 
     def update_telemetry_ui(self):
 
-        if telemetry_data_dict["battery_voltage"] >= 3.7 and self.battery_volt_label.cget("fg_color") != "darkgreen":
-            self.battery_volt_label.configure(fg_color="darkgreen")
-        elif telemetry_data_dict["battery_voltage"] < 3.7 and self.battery_volt_label.cget("fg_color") != "red4":
+        # LOW BATTERY LOGIC
+        if (((3.7 <= telemetry_data_dict["battery_voltage"] < 4.3)
+             or (10.5 <= telemetry_data_dict["battery_voltage"] < 12.7))):
+            if self.battery_volt_label.cget("fg_color") != "darkgreen":
+                self.battery_volt_label.configure(fg_color="darkgreen")
+        elif self.battery_volt_label.cget("fg_color") != "red4":
             self.battery_volt_label.configure(fg_color="red4")
 
         self.gyro_x_data_label.configure(text=f"X: {telemetry_data_dict['gyro_x_dps']:.1f}")
@@ -780,8 +787,7 @@ class MainWindow:
                                              f"φ: {telemetry_data_dict['target_roll_dps']:.1f} "
                                              f"ψ: {telemetry_data_dict['target_yaw_dps']:.1f}")
 
-        self.calibrated_altitude_label.configure(
-            text=f"Alt: {telemetry_data_dict['altitude_calibrated']:.1f} m")
+        self.calibrated_altitude_label.configure(text=f"Alt: {telemetry_data_dict['altitude_calibrated']:.1f} m")
         self.target_altitude_label.configure(text=f"T.Alt: {telemetry_data_dict['target_altitude']:.1f} m")
 
         self.velocity_x_label.configure(text=f"Vel X: {telemetry_data_dict['velocity_x_ms']:.1f}")
@@ -950,23 +956,46 @@ class MainWindow:
         self.prev_origin_latitude = telemetry_data_dict["gps_latitude_origin"]
         self.prev_origin_longitude = telemetry_data_dict["gps_longitude_origin"]
 
-        self.target_location_marker.set_position(telemetry_data_dict["target_latitude"],
-                                                 telemetry_data_dict["target_longitude"])
+        if (telemetry_data_dict["target_latitude"] != self.prev_target_latitude or
+                telemetry_data_dict["target_longitude"] != self.prev_target_longitude):
 
+            self.target_location_marker.set_position(telemetry_data_dict["target_latitude"],
+                                                     telemetry_data_dict["target_longitude"])
+
+            idx, dist = find_nearest_coordinate((telemetry_data_dict["target_latitude"],
+                                                 telemetry_data_dict["target_longitude"]))
+
+            if dist < 100.0:
+                self.target_point_label.configure(text=f"T.Point: -WP {idx}-")
+            elif get_distance_from_lat_lon(telemetry_data_dict["target_latitude"],
+                                           telemetry_data_dict["target_longitude"],
+                                           telemetry_data_dict["gps_latitude_origin"],
+                                           telemetry_data_dict["gps_longitude_origin"]) < 100.0:
+                self.target_point_label.configure(text=f"T.Point: -Home-")
+            else:
+                self.target_point_label.configure(text=f"T.Point: -Arbitrary-")
+
+            self.prev_target_latitude = telemetry_data_dict["target_latitude"]
+            self.prev_target_longitude = telemetry_data_dict["target_longitude"]
+
+        if (telemetry_data_dict["gps_fix"] < 3 or telemetry_data_dict["gps_satCount"] < 6 or
+                telemetry_data_dict["gps_hdop"] > 2.0):
+            self.gps_outer_frame.configure(fg_color="#880808")  # RED
+        else:
+            self.gps_outer_frame.configure(fg_color="#008000")  # GREEN
         ####################################################################################
 
         if ((abs(telemetry_data_dict["gps_latitude"] - self.prev_latitude) > 0.00001
              or abs(telemetry_data_dict["gps_longitude"] - self.prev_longitude) > 0.00001)
                 and (telemetry_data_dict["gps_latitude"] != 0
                      or telemetry_data_dict["gps_longitude"] != 0)):
-            
+
             drone_path_coordinates.append((telemetry_data_dict["gps_latitude"],
                                            telemetry_data_dict["gps_longitude"]))
 
             if len(drone_path_coordinates) > 1:
                 self.drone_path.set_position_list(drone_path_coordinates)
 
-            print(len(drone_path_coordinates))
             self.prev_latitude = telemetry_data_dict["gps_latitude"]
             self.prev_longitude = telemetry_data_dict["gps_longitude"]
 
@@ -989,14 +1018,15 @@ class MainWindow:
             waypoint_counter += 1
             if waypoint_counter > 1:
                 self.waypoint_path.set_position_list(waypoint_coordinates)
+            self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
         else:
             print("wp >= 25")
 
     def add_waypoint_to_home_event(self):
         global waypoint_counter, waypoint_altitude, telemetry_data_dict
 
-        if len(waypoint_coordinates) < 25 and telemetry_data_dict["gps_latitude_origin"] != 0 and telemetry_data_dict[
-            "gps_longitude_origin"] != 0:
+        if (len(waypoint_coordinates) < 25 and telemetry_data_dict["gps_latitude_origin"] != 0 and
+                telemetry_data_dict["gps_longitude_origin"] != 0):
 
             if self.wp_altitude_input.get() != "":
                 alt = int(float(self.wp_altitude_input.get()) * 10)
@@ -1015,6 +1045,7 @@ class MainWindow:
             waypoint_counter += 1
             if waypoint_counter > 1:
                 self.waypoint_path.set_position_list(waypoint_coordinates)
+            self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
         else:
             print("WP home is zero or wp >= 25")
 
@@ -1026,18 +1057,20 @@ class MainWindow:
             item.delete()
         waypoint_counter = 0
         self.waypoint_path.set_position_list([(0.0, 0.0), (0.0, 0.0)])
+        self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
 
     def delete_waypoint_event(self, coords):
         global waypoint_counter
         if len(waypoint_coordinates) == 1:
             self.delete_all_waypoints_event()
         else:
-            index = find_nearest_coordinate(coords)
+            index, distance = find_nearest_coordinate(coords)
             del waypoint_coordinates[index]
             del waypoint_only_altitudes[index]
             waypoint_markers[index].delete()
             del waypoint_markers[index]
             self.redraw_waypoint_markers()
+        self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
 
     def redraw_waypoint_markers(self):
         global waypoint_counter
@@ -1070,11 +1103,6 @@ class MainWindow:
         self.map_widget.set_zoom(int(self.map_widget.zoom))
         self.map_widget.set_position(39.110946, 27.187785)
         self.map_widget.set_position(39.110946, 27.187785)
-
-    def save_on_click(self):
-        df = pd.DataFrame([telemetry_data_dict])
-        df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/SAVE_ON_CLICK_FILE.csv",
-                  mode='a', index=False, header=False)
 
     def auto_blackbox(self):
         if self.bb_auto_record:
@@ -1134,7 +1162,8 @@ class MainWindow:
 
             if response:
                 serial_backend.acc_calib_values.clear()
-                serial_backend.acc_calib_values.append((telemetry_data_dict["acc_x_ms2"], telemetry_data_dict["acc_y_ms2"]))
+                serial_backend.acc_calib_values.append(
+                    (telemetry_data_dict["acc_x_ms2"], telemetry_data_dict["acc_y_ms2"]))
                 self.calibrate_acc_button.configure(text="Turn 180°")
                 acc_calibration.state = 1
 
@@ -1143,10 +1172,13 @@ class MainWindow:
             self.calibrate_acc_button.configure(text="Start Acc Cal")
             acc_calibration.state = 0
             serial_backend.acc_calib_result.clear()
-            serial_backend.acc_calib_result.append((serial_backend.acc_calib_values[0][0] + serial_backend.acc_calib_values[1][0]) / 2)
-            serial_backend.acc_calib_result.append((serial_backend.acc_calib_values[0][1] + serial_backend.acc_calib_values[1][1]) / 2)
+            serial_backend.acc_calib_result.append(
+                (serial_backend.acc_calib_values[0][0] + serial_backend.acc_calib_values[1][0]) / 2)
+            serial_backend.acc_calib_result.append(
+                (serial_backend.acc_calib_values[0][1] + serial_backend.acc_calib_values[1][1]) / 2)
 
-            response = messagebox.askokcancel("Send Acc Calibration", f"X: {serial_backend.acc_calib_result[0]:.2f}   Y: {serial_backend.acc_calib_result[1]:.2f}")
+            response = messagebox.askokcancel("Send Acc Calibration",
+                                              f"X: {serial_backend.acc_calib_result[0]:.2f}   Y: {serial_backend.acc_calib_result[1]:.2f}")
 
             if response:
                 serial_backend.send_gamepad_data = False
@@ -1173,20 +1205,21 @@ def find_nearest_coordinate(target_coord):
         x, y = coord
         target_x, target_y = target_coord
 
-        # Euclidean mesafesini hesapla
-        distance = math.sqrt((x - target_x) ** 2 + (y - target_y) ** 2)
+        distance = get_distance_from_lat_lon(x, y, target_x, target_y)
 
         # Eğer şu ana kadar hesaplanan en küçük mesafeden daha küçükse güncelle
         if distance < min_distance:
             min_distance = distance
             nearest_index = i
 
-    return nearest_index
+    return nearest_index, min_distance
 
 
 def write_waypoints():
-    serial_backend.send_gamepad_data = False
-    serial_backend.send_waypoints_data = True
+    response = messagebox.askokcancel("Send WP mission?", "Are you sure?")
+    if response:
+        serial_backend.send_gamepad_data = False
+        serial_backend.send_waypoints_data = True
 
 
 def read_waypoints():
@@ -1254,3 +1287,56 @@ def voice_notification_enable_disable():
         voice_notify.is_enabled = 0
     else:
         voice_notify.is_enabled = 1
+
+
+def get_distance_from_lat_lon(lat1, lon1, lat2, lon2):
+    # Dereceden radyana dönüşüm ((PI / 180) / 10000000)
+    lat1_rad = lat1 * (math.pi / 180.0)
+    lat2_rad = lat2 * (math.pi / 180.0)
+    lon1_rad = lon1 * (math.pi / 180.0)
+    lon2_rad = lon2 * (math.pi / 180.0)
+
+    # Enlem ve boylam farklarının hesaplanması
+    dLat = lat2_rad - lat1_rad
+    dLon = lon2_rad - lon1_rad
+
+    # Haversine mesafesinin hesaplanması
+    sin_dlat = math.sin(dLat / 2.0)
+    sin_dlon = math.sin(dLon / 2.0)
+    cos_lat1 = math.cos(lat1_rad)
+
+    a = sin_dlat * sin_dlat
+    distance_north_cm = math.atan2(math.sqrt(a), math.sqrt(1.0 - a)) * 1274200000.0
+
+    if dLat > 0:
+        distance_north_cm = -distance_north_cm
+
+    a = cos_lat1 * cos_lat1 * sin_dlon * sin_dlon
+    distance_east_cm = math.atan2(math.sqrt(a), math.sqrt(1.0 - a)) * 1274200000.0
+
+    if dLon > 0:
+        distance_east_cm = -distance_east_cm
+
+    distance_cm = math.sqrt(distance_north_cm * distance_north_cm + distance_east_cm * distance_east_cm)
+
+    return distance_cm
+
+
+def calculate_total_wp_distance():
+    global total_wp_distance
+    total_wp_distance = 0
+
+    if len(waypoint_coordinates) > 1:
+
+        for i in range(1, len(waypoint_coordinates)):
+            lat1, lon1 = waypoint_coordinates[i - 1]
+            lat2, lon2 = waypoint_coordinates[i]
+            total_wp_distance = total_wp_distance + get_distance_from_lat_lon(lat1, lon1, lat2, lon2)
+
+    return total_wp_distance
+
+
+def save_on_click():
+    df = pd.DataFrame([telemetry_data_dict])
+    df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/SAVE_ON_CLICK_FILE.csv",
+              mode='a', index=False, header=False)

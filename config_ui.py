@@ -713,7 +713,7 @@ def show_config_window():
                                           placeholder_text="AHRS Beta")
     ahrs_filter_beta_entry.place(relx=0.74, rely=0.09, anchor=tkinter.CENTER)
     ahrs_filter_beta_label = ctk.CTkLabel(master=frame2, width=120, height=35, corner_radius=10,
-                                          text=f"{config_data_dict['ahrs_filter_beta']:.3f}",
+                                          text=f"{config_data_dict['ahrs_filter_beta']:.4f}",
                                           font=("Arial", 18, "bold"))
     ahrs_filter_beta_label.place(relx=0.26, rely=0.09, anchor=tkinter.CENTER)
 
@@ -721,7 +721,7 @@ def show_config_window():
                                           placeholder_text="AHRS Zeta")
     ahrs_filter_zeta_entry.place(relx=0.74, rely=0.15, anchor=tkinter.CENTER)
     ahrs_filter_zeta_label = ctk.CTkLabel(master=frame2, width=120, height=35, corner_radius=10,
-                                          text=f"{config_data_dict['ahrs_filter_zeta']:.3f}",
+                                          text=f"{config_data_dict['ahrs_filter_zeta']:.4f}",
                                           font=("Arial", 18, "bold"))
     ahrs_filter_zeta_label.place(relx=0.26, rely=0.15, anchor=tkinter.CENTER)
 
@@ -729,7 +729,7 @@ def show_config_window():
                                               placeholder_text="Alt Beta")
     altitude_filter_beta_entry.place(relx=0.74, rely=0.21, anchor=tkinter.CENTER)
     altitude_filter_beta_label = ctk.CTkLabel(master=frame2, width=120, height=35, corner_radius=10,
-                                              text=f"{config_data_dict['alt_filter_beta']:.3f}",
+                                              text=f"{config_data_dict['alt_filter_beta']:.4f}",
                                               font=("Arial", 18, "bold"))
     altitude_filter_beta_label.place(relx=0.26, rely=0.21, anchor=tkinter.CENTER)
 
@@ -737,7 +737,7 @@ def show_config_window():
                                           placeholder_text="VelZ Beta")
     velz_filter_beta_entry.place(relx=0.74, rely=0.28, anchor=tkinter.CENTER)
     velz_filter_beta_label = ctk.CTkLabel(master=frame2, width=120, height=35, corner_radius=10,
-                                          text=f"{config_data_dict['velz_filter_beta']:.3f}",
+                                          text=f"{config_data_dict['velz_filter_beta']:.4f}",
                                           font=("Arial", 18, "bold"))
     velz_filter_beta_label.place(relx=0.26, rely=0.28, anchor=tkinter.CENTER)
 
@@ -745,7 +745,7 @@ def show_config_window():
                                           placeholder_text="VelZ Zeta")
     velz_filter_zeta_entry.place(relx=0.74, rely=0.34, anchor=tkinter.CENTER)
     velz_filter_zeta_label = ctk.CTkLabel(master=frame2, width=120, height=35, corner_radius=10,
-                                          text=f"{config_data_dict['velz_filter_zeta']:.3f}",
+                                          text=f"{config_data_dict['velz_filter_zeta']:.4f}",
                                           font=("Arial", 18, "bold"))
     velz_filter_zeta_label.place(relx=0.26, rely=0.34, anchor=tkinter.CENTER)
 
@@ -753,7 +753,7 @@ def show_config_window():
                                            placeholder_text="VelXY Beta")
     velxy_filter_beta_entry.place(relx=0.74, rely=0.40, anchor=tkinter.CENTER)
     velxy_filter_beta_label = ctk.CTkLabel(master=frame2, width=120, height=35, corner_radius=10,
-                                           text=f"{config_data_dict['velxy_filter_beta']:.3f}",
+                                           text=f"{config_data_dict['velxy_filter_beta']:.4f}",
                                            font=("Arial", 18, "bold"))
     velxy_filter_beta_label.place(relx=0.26, rely=0.40, anchor=tkinter.CENTER)
 

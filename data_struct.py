@@ -288,6 +288,6 @@ waypoint_markers = []
 waypoint_counter = 0
 waypoint_altitude = 0
 motor_test_results = [0.0, 0.0, 0.0, 0.0]
-
+total_wp_distance = 0
 drone_path_coordinates = []
 

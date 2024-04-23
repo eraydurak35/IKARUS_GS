@@ -8,7 +8,10 @@ import time
 import config_ui
 import voice_notify
 import motor_test_ui
+
 counter = 0
+
+use_gamepad = 0
 
 
 def thread1():
@@ -37,10 +40,11 @@ def thread2():
     quit()
 
 
-# def thread3():
-#     while ui_main.isAppAlive:
-#         gamepad_handler.handle_gamepad()
-#     quit()
+def thread3():
+    while ui_main.isAppAlive:
+        gamepad_handler.handle_gamepad()
+    quit()
+
 
 def thread4():
     while ui_main.isAppAlive:
@@ -56,12 +60,15 @@ if __name__ == '__main__':
 
     t1 = threading.Thread(target=thread1)
     t2 = threading.Thread(target=thread2)
-    # t3 = threading.Thread(target=thread3)
+
     t4 = threading.Thread(target=thread4)
     t1.start()
     t2.start()
-    # t3.start()
     t4.start()
+
+    if use_gamepad:
+        t3 = threading.Thread(target=thread3)
+        t3.start()
 
     while ui_main.isAppAlive:
         ui_main.update_ui()
