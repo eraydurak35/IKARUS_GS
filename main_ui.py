@@ -1,8 +1,12 @@
+import time
+
 import customtkinter as ctk
+from customtkinter import filedialog
 import tkinter
 import numpy as np
 from PIL import Image, ImageTk
 from data_struct import *
+import data_struct as ds
 import serial_backend
 import tkintermapview
 import os
@@ -15,6 +19,8 @@ from tkinter import messagebox
 import voice_notify
 import motor_test_ui
 import acc_calibration
+import auto_mission_creator as amc
+import save_load_mission as slm
 
 
 class MainWindow:
@@ -37,6 +43,13 @@ class MainWindow:
         self.isAppAlive = True
         self.isBlackBoxRecording = False
         self.map_follow_drone = False
+        self.point_mode = "WP Mode"
+        self.auto_mission_padding = 0
+        self.auto_mission_angle = 0
+        self.auto_mission_spacing = 1
+        self.auto_mission_invert = 0
+        self.auto_mission_reverse = 0
+        self.is_auto_mission_create_requested = 0
 
         self.close_img = ctk.CTkImage(Image.open("images/Close.png"), size=(30, 30))
         self.config_img = ctk.CTkImage(Image.open("images/settings_1.png"), size=(40, 40))
@@ -126,9 +139,11 @@ class MainWindow:
         self.drone_350_deg_img = ImageTk.PhotoImage(
             Image.open("images/drone_pos/drone_pos_icon_350_deg.png").resize((90, 90)))
 
-        self.location_img = ImageTk.PhotoImage(Image.open("images/location_icon.png").resize((45, 45)))
-        self.drone_origin_img = ImageTk.PhotoImage(Image.open("images/home_location.png").resize((45, 45)))
+        self.location_img = ImageTk.PhotoImage(Image.open("images/location_icon.png").resize((35, 35)))
+        self.drone_origin_img = ImageTk.PhotoImage(Image.open("images/home_location.png").resize((35, 35)))
         self.target_location_img = ImageTk.PhotoImage(Image.open("images/target_pointer.png").resize((35, 40)))
+        self.dist_empty_img = ImageTk.PhotoImage(Image.open("images/empty.png").resize((45, 45)))
+        self.polygon_edge_img = ImageTk.PhotoImage(Image.open("images/polygon_edge_marker.png").resize((15, 15)))
 
         # MAP FRAME
         self.map_frame = ctk.CTkFrame(master=self.root, width=1600, height=830,
@@ -143,10 +158,9 @@ class MainWindow:
 
         self.map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
         self.map_widget.set_position(39.110946, 27.187785)
-        # self.map_widget.set_zoom(17)
         self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
 
-        self.map_widget.add_right_click_menu_command(label="Add WP",
+        self.map_widget.add_right_click_menu_command(label="Add Point",
                                                      command=self.add_waypoint_event,
                                                      pass_coords=True)
 
@@ -162,7 +176,7 @@ class MainWindow:
                                                      command=dummy_func,
                                                      pass_coords=False)
 
-        self.map_widget.add_right_click_menu_command(label="Delete WP",
+        self.map_widget.add_right_click_menu_command(label="Delete Point",
                                                      command=self.delete_waypoint_event,
                                                      pass_coords=True)
 
@@ -170,8 +184,8 @@ class MainWindow:
                                                      command=dummy_func,
                                                      pass_coords=False)
 
-        self.map_widget.add_right_click_menu_command(label="Delete All WP's",
-                                                     command=self.delete_all_waypoints_event,
+        self.map_widget.add_right_click_menu_command(label="Delete All Points",
+                                                     command=self.delete_all_points_event,
                                                      pass_coords=False)
 
         self.map_widget.add_right_click_menu_command(label="",
@@ -183,7 +197,12 @@ class MainWindow:
                                                      pass_coords=False)
 
         self.waypoint_path = self.map_widget.set_path([(0, 0), (0, 0)], color="red", width=5)
-
+        self.field_polygon_1 = self.map_widget.set_polygon([(0.0, 0.0)],
+                                                           fill_color=None,
+                                                           # outline_color="red",
+                                                           # border_width=12,
+                                                           # command=self.field_clicked_event,
+                                                           name="field_polygon_1")
         self.drone_path = self.map_widget.set_path([(0, 0), (0, 0)], color="lime green", width=5)
 
         self.drone_location_marker = self.map_widget.set_marker(0, 0, text="0.0m", text_color="gray1",
@@ -226,86 +245,186 @@ class MainWindow:
                                           command=self.close_application)
         self.close_button.place(relx=0.828, rely=0.03, anchor=tkinter.CENTER)
 
+        #############################################
+
+        self.wp_field_mode_tabview = ctk.CTkTabview(master=self.root, width=440, height=110, corner_radius=10, command=self.wp_field_mode_selection)
+        self.wp_field_mode_tabview.place(relx=0.543, rely=0.045, anchor=tkinter.CENTER)
+
+        self.wp_field_mode_tabview.add("WP Mode")  # add tab at the end
+        self.wp_field_mode_tabview.add("Field Mode")  # add tab at the end
+        self.wp_field_mode_tabview.set("WP Mode")  # set currently visible tab
+
+        #                                               FIELD MODE ELEMENTS
+
+        self.create_mission_for_field_invert_checkbox_variable = ctk.StringVar(value="off")
+        self.create_mission_for_field_invert_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("Field Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
+                                                     text="Invert", font=("Arial", 11, "bold"), command=self.create_mission_for_field_invert_checkbox_event,
+                                                     onvalue="on", offvalue="off", variable=self.create_mission_for_field_invert_checkbox_variable)
+
+        self.create_mission_for_field_invert_checkbox.place(relx=0.95, rely=0.74, anchor=tkinter.CENTER)
+
+        self.create_mission_for_field_reverse_checkbox_variable = ctk.StringVar(value="off")
+        self.create_mission_for_field_reverse_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("Field Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
+                                                     text="Reverse", font=("Arial", 11, "bold"), command=self.create_mission_for_field_reverse_checkbox_event,
+                                                     onvalue="on", offvalue="off", variable=self.create_mission_for_field_reverse_checkbox_variable)
+
+        self.create_mission_for_field_reverse_checkbox.place(relx=0.95, rely=0.26, anchor=tkinter.CENTER)
+
+
+
+        self.create_mission_for_field_button = ctk.CTkButton(master=self.wp_field_mode_tabview.tab("Field Mode"), width=30, height=25, corner_radius=10, text="Create",
+                                                             command=self.create_mission_for_field_function)
+        self.create_mission_for_field_button.place(relx=0.72, rely=0.7, anchor=tkinter.CENTER)
+
+        self.create_mission_for_field_angle_slider = ctk.CTkSlider(master=self.wp_field_mode_tabview.tab("Field Mode"),
+                                                                   from_=-60, to=60,
+                                                                   command=self.create_mission_for_field_angle_slider_event,
+                                                                   width=140, height=15, number_of_steps=60)
+        self.create_mission_for_field_angle_slider.place(relx=0.3, rely=0.2, anchor=tkinter.CENTER)
+
+
+
+        self.create_mission_for_field_spacing_slider = ctk.CTkSlider(master=self.wp_field_mode_tabview.tab("Field Mode"),
+                                                                     from_=1, to=10,
+                                                                     command=self.create_mission_for_field_spacing_slider_event,
+                                                                     width=140, height=15, number_of_steps=18)
+        self.create_mission_for_field_spacing_slider.place(relx=0.3, rely=0.75, anchor=tkinter.CENTER)
+        self.create_mission_for_field_spacing_slider.set(0)
+
+
+        self.create_mission_for_field_padding_slider = ctk.CTkSlider(master=self.wp_field_mode_tabview.tab("Field Mode"),
+                                                                     from_=0, to=10,
+                                                                     command=self.create_mission_for_field_padding_slider_event,
+                                                                     width=140, height=15, number_of_steps=20)
+        self.create_mission_for_field_padding_slider.place(relx=0.64, rely=0.2, anchor=tkinter.CENTER)
+        self.create_mission_for_field_padding_slider.set(0)
+
+
+
+        self.create_mission_for_field_angle_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("Field Mode"),
+                                                                 width=20, height=20, font=("Arial", 12, "bold"), text="Agl: 0")
+        self.create_mission_for_field_angle_label.place(relx=0.06, rely=0.2, anchor=tkinter.CENTER)
+
+
+        self.create_mission_for_field_spacing_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("Field Mode"),
+                                                                   width=20, height=20, font=("Arial", 12, "bold"), text="Spc: 0.0")
+        self.create_mission_for_field_spacing_label.place(relx=0.06, rely=0.75, anchor=tkinter.CENTER)
+
+        self.create_mission_for_field_padding_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("Field Mode"),
+                                                                   width=20, height=20, font=("Arial", 12, "bold"), text="Pad: 0.0")
+        self.create_mission_for_field_padding_label.place(relx=0.56, rely=0.75, anchor=tkinter.CENTER)
+
+        #                                               WP MODE ELEMENTS
+
+
+
+        self.save_mission_button = ctk.CTkButton(master=self.wp_field_mode_tabview.tab("WP Mode"), width=35, height=18, corner_radius=10, text="Save",
+                                                 command=self.save_mission_function)
+        self.save_mission_button.place(relx=0.1, rely=0.28, anchor=tkinter.CENTER)
+
+        self.load_mission_button = ctk.CTkButton(master=self.wp_field_mode_tabview.tab("WP Mode"), width=35, height=18, corner_radius=10, text="Load",
+                                                 command=self.load_mission_function)
+        self.load_mission_button.place(relx=0.1, rely=0.72, anchor=tkinter.CENTER)
+
+
+        self.wp_altitude_input = ctk.CTkEntry(master=self.wp_field_mode_tabview.tab("WP Mode"), width=70, height=40, corner_radius=5,
+                                              placeholder_text="WP Alt", font=("Arial", 13, "bold"))
+
+        self.wp_altitude_input.place(relx=0.3, rely=0.5, anchor=tkinter.CENTER)
+
+        self.wp_distance_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("WP Mode"), width=70, height=40, corner_radius=5,
+                                              text="Distance:\n0.0m", font=("Arial", 13, "bold"), fg_color="#292929")
+
+        self.wp_distance_label.place(relx=0.53, rely=0.5, anchor=tkinter.CENTER)
+
+        self.rth_after_wp_checkbox_variable = ctk.StringVar(value="off")
+        self.rth_after_wp_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("WP Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
+                                                     text="RTH after Mission", font=("Arial", 11, "bold"), command=self.rth_after_wp_checkbox_event,
+                                                     onvalue="on", offvalue="off", variable=self.rth_after_wp_checkbox_variable)
+
+        self.rth_after_wp_checkbox.place(relx=0.82, rely=0.28, anchor=tkinter.CENTER)
+
+        self.land_after_wp_checkbox_variable = ctk.StringVar(value="off")
+        self.land_after_wp_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("WP Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
+                                                      text="Lnd after Mission", font=("Arial", 11, "bold"), command=self.land_after_wp_checkbox_event,
+                                                      onvalue="on", offvalue="off", variable=self.land_after_wp_checkbox_variable, state="disabled")
+
+        self.land_after_wp_checkbox.place(relx=0.82, rely=0.72, anchor=tkinter.CENTER)
+
+        #############################################
+
         self.voice_notification_checkbox = ctk.CTkCheckBox(master=self.root, width=20, height=20, corner_radius=5,
                                                            text="", command=voice_notification_enable_disable)
 
         self.voice_notification_checkbox.place(relx=0.828, rely=0.07, anchor=tkinter.CENTER)
 
         # UTILITY FRAME /*******************************************************************************/
-        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=950, height=95,
+
+        self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=800, height=95,
                                               corner_radius=10)
-        self.arm_utility_frame.place(relx=0.253, rely=0.053, anchor=tkinter.CENTER)
+        self.arm_utility_frame.place(relx=0.215, rely=0.053, anchor=tkinter.CENTER)
 
         self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
                                            command=show_config_window, image=self.config_img, text="",
                                            fg_color="transparent", state="enabled")
-        self.config_button.place(relx=0.04, rely=0.5, anchor=tkinter.CENTER)
+        self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              command=self.blackbox, text="", state="enabled", fg_color="transparent",
                                              image=self.blackbox_passive_img)
 
-        self.blackbox_button.place(relx=0.11, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_button.place(relx=0.12, rely=0.5, anchor=tkinter.CENTER)
 
         self.blackbox_auto_record_button = ctk.CTkButton(master=self.arm_utility_frame, width=10, height=40,
                                                          corner_radius=5,
                                                          command=self.auto_blackbox, text="", state="enabled",
                                                          fg_color="green")
 
-        self.blackbox_auto_record_button.place(relx=0.14, rely=0.5, anchor=tkinter.CENTER)
+        self.blackbox_auto_record_button.place(relx=0.16, rely=0.5, anchor=tkinter.CENTER)
 
         self.alt_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.alt_hold_passive_img)
 
-        self.alt_hold_button.place(relx=0.19, rely=0.5, anchor=tkinter.CENTER)
+        self.alt_hold_button.place(relx=0.23, rely=0.5, anchor=tkinter.CENTER)
 
         self.pos_hold_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.pos_hold_passive_img)
 
-        self.pos_hold_button.place(relx=0.25, rely=0.5, anchor=tkinter.CENTER)
+        self.pos_hold_button.place(relx=0.32, rely=0.5, anchor=tkinter.CENTER)
 
         self.waypoint_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              text="", state="enabled", fg_color="transparent",
                                              image=self.waypoint_passive_img)
 
-        self.waypoint_button.place(relx=0.31, rely=0.5, anchor=tkinter.CENTER)
+        self.waypoint_button.place(relx=0.41, rely=0.5, anchor=tkinter.CENTER)
 
         self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                          text_color="black", fg_color="#dcdde1", text="Save",
                                          command=save_on_click,
                                          font=("Arial", 14, "bold"))
 
-        self.save_button.place(relx=0.38, rely=0.5, anchor=tkinter.CENTER)
+        self.save_button.place(relx=0.49, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_mag_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Mag Cal",
                                                   command=self.calibrate_mag_event, font=("Arial", 14, "bold"))
 
-        self.calibrate_mag_button.place(relx=0.48, rely=0.5, anchor=tkinter.CENTER)
+        self.calibrate_mag_button.place(relx=0.62, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_acc_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Acc Cal",
                                                   command=self.calibrate_acc_event, font=("Arial", 14, "bold"))
 
-        self.calibrate_acc_button.place(relx=0.62, rely=0.5, anchor=tkinter.CENTER)
+        self.calibrate_acc_button.place(relx=0.78, rely=0.5, anchor=tkinter.CENTER)
 
         self.motor_test_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
                                                text_color="black", fg_color="#dcdde1", font=("Arial", 14, "bold"),
                                                text="Motor Test",
                                                command=motor_test_ui.show_motor_test_window)
-        self.motor_test_button.place(relx=0.74, rely=0.5, anchor=tkinter.CENTER)
+        self.motor_test_button.place(relx=0.92, rely=0.5, anchor=tkinter.CENTER)
 
-        self.wp_altitude_input = ctk.CTkEntry(master=self.arm_utility_frame, width=60, height=40, corner_radius=5,
-                                              placeholder_text="WP Alt")
-
-        self.wp_altitude_input.place(relx=0.84, rely=0.5, anchor=tkinter.CENTER)
-
-        self.wp_distance_label = ctk.CTkLabel(master=self.arm_utility_frame, width=65, height=45, corner_radius=5,
-                                              text="Distance:\n0.0m", font=("Arial", 15, "bold"), fg_color="#292929")
-
-        self.wp_distance_label.place(relx=0.93, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME  /*********************************************************************************/
         self.data_frame = ctk.CTkFrame(master=self.root, width=290, height=1060,
@@ -582,13 +701,19 @@ class MainWindow:
                                                corner_radius=10,
                                                text="Battery: 4.2V",
                                                font=("Arial", 18, "bold"))
-        self.battery_volt_label.place(relx=0.5, rely=0.25, anchor=tkinter.CENTER)
+        self.battery_volt_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
 
-        self.conn_quality_label = ctk.CTkLabel(master=self.utility_1_frame, width=100, height=25,
+        self.rssi_label = ctk.CTkLabel(master=self.utility_1_frame, width=100, height=25,
                                                corner_radius=10,
-                                               text="Connection:\n100.0%",
+                                               text="RSSI: -20 dBm",
                                                font=("Arial", 18, "bold"))
-        self.conn_quality_label.place(relx=0.5, rely=0.65, anchor=tkinter.CENTER)
+        self.rssi_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+
+        self.packet_drop_ratio_label = ctk.CTkLabel(master=self.utility_1_frame, width=100, height=25,
+                                               corner_radius=10,
+                                               text="PDR: 0%",
+                                               font=("Arial", 18, "bold"))
+        self.packet_drop_ratio_label.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
 
         # Utility Frame 2 //////////////////////////////////////////////////////////////////////////////
         self.utility_2_frame = ctk.CTkFrame(master=self.bottom_frame, width=400, height=100,
@@ -723,7 +848,7 @@ class MainWindow:
                                                     corner_radius=10,
                                                     text="Dist: 10.0",
                                                     font=("Arial", 18, "bold"))
-        self.dist_to_target_2d_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
+        self.dist_to_target_2d_label.place(relx=0.55, rely=0.7, anchor=tkinter.CENTER)
 
         self.vel_2d_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                          corner_radius=10,
@@ -768,11 +893,12 @@ class MainWindow:
         self.temp_data_label.configure(text=f"Temperature:       {telemetry_data_dict['barometer_temperature']:.1f} °C")
         self.altitude_data_label.configure(text=f"Altitude:                 {telemetry_data_dict['altitude']:.1f} m")
 
-        self.tof_1_data_label.configure(text=f"Range 1:      {telemetry_data_dict['tof_distance_1']:.1f}")
+        self.tof_1_data_label.configure(text=f"Range 1:      {telemetry_data_dict['tof_distance_1'] * 100.0:.1f}")
         self.tof_2_data_label.configure(text=f"Range 2:      {telemetry_data_dict['tof_distance_2']:.1f}")
 
         self.battery_volt_label.configure(text=f"Battery: {telemetry_data_dict['battery_voltage']:.1f} V")
-        self.conn_quality_label.configure(text=f"Connection:\n{telemetry_data_dict['packet_delivery']}%")
+        self.rssi_label.configure(text=f"RSSI: {telemetry_data_dict['RSSI']:.0f} dBm")
+        self.packet_drop_ratio_label.configure(text=f"PDR: {telemetry_data_dict['packet_drop_ratio']:.0f} %")
 
         self.attitude_pitch_label.configure(text=f"Att θ: {telemetry_data_dict['pitch']:.1f}")
         self.attitude_roll_label.configure(text=f"φ: {telemetry_data_dict['roll']:.1f}")
@@ -798,8 +924,8 @@ class MainWindow:
         self.target_velocity_y_label.configure(text=f"Y: {telemetry_data_dict['target_velocity_y_ms']:.1f}")
         self.target_velocity_z_label.configure(text=f"Z: {telemetry_data_dict['target_velocity_z_ms']:.1f}")
 
-        self.flow_x_vel_data_label.configure(text=f"X: {telemetry_data_dict['flow_x_velocity']:.1f}")
-        self.flow_y_vel_data_label.configure(text=f"Y: {telemetry_data_dict['flow_y_velocity']:.1f}")
+        self.flow_x_vel_data_label.configure(text=f"X: {telemetry_data_dict['flow_x_velocity'] * 100.0:.1f}")
+        self.flow_y_vel_data_label.configure(text=f"Y: {telemetry_data_dict['flow_y_velocity'] * 100.0:.1f}")
         self.flow_quality_data_label.configure(text=f"Quality: {telemetry_data_dict['flow_quality']:.0f}%")
 
         self.drone_location_marker.set_text(f"{telemetry_data_dict['altitude_calibrated']:.1f}m")
@@ -963,10 +1089,10 @@ class MainWindow:
                                                      telemetry_data_dict["target_longitude"])
 
             idx, dist = find_nearest_coordinate((telemetry_data_dict["target_latitude"],
-                                                 telemetry_data_dict["target_longitude"]))
+                                                 telemetry_data_dict["target_longitude"]), waypoint_coordinates)
 
             if dist < 100.0:
-                self.target_point_label.configure(text=f"T.Point: -WP {idx}-")
+                self.target_point_label.configure(text=f"T.Point: -WP {idx + 1}-")
             elif get_distance_from_lat_lon(telemetry_data_dict["target_latitude"],
                                            telemetry_data_dict["target_longitude"],
                                            telemetry_data_dict["gps_latitude_origin"],
@@ -978,11 +1104,11 @@ class MainWindow:
             self.prev_target_latitude = telemetry_data_dict["target_latitude"]
             self.prev_target_longitude = telemetry_data_dict["target_longitude"]
 
-        if (telemetry_data_dict["gps_fix"] < 3 or telemetry_data_dict["gps_satCount"] < 6 or
-                telemetry_data_dict["gps_hdop"] > 2.0):
+        if telemetry_data_dict["is_gnss_sanity_check_ok"] != 1:
             self.gps_outer_frame.configure(fg_color="#880808")  # RED
         else:
             self.gps_outer_frame.configure(fg_color="#008000")  # GREEN
+
         ####################################################################################
 
         if ((abs(telemetry_data_dict["gps_latitude"] - self.prev_latitude) > 0.00001
@@ -999,28 +1125,164 @@ class MainWindow:
             self.prev_latitude = telemetry_data_dict["gps_latitude"]
             self.prev_longitude = telemetry_data_dict["gps_longitude"]
 
+
+
+
+        if self.is_auto_mission_create_requested:
+            if amc.is_auto_mission_planned():
+                print("done.")
+                self.is_auto_mission_create_requested = 0
+                alt = 0
+                if self.auto_mission_reverse == 1:
+                    amc.bas_ve_son_noktalar_latlon.reverse()
+
+                if self.wp_altitude_input.get() != "":
+                    a = int(float(self.wp_altitude_input.get()) * 10)
+                    if 0 <= alt <= 255:
+                        alt = a
+                for i in range(len(amc.bas_ve_son_noktalar_latlon)):
+
+                    if i < 25:
+                        # waypoint_coordinates.append((all_points[i][0], all_points[i][1]))
+                        waypoint_coordinates.append((amc.bas_ve_son_noktalar_latlon[i][0], amc.bas_ve_son_noktalar_latlon[i][1]))
+                        waypoint_counter = 24
+                        waypoint_only_altitudes.append(alt)
+
+
+                self.redraw_waypoint_markers()
+
+                total_dist = calculate_wp_distance()
+                self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+                self.redraw_wp_distance_markers()
+
+            else:
+                print("waiting...")
+
+
+
+    def save_mission_function(self):
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("Veri Dosyaları", "*.json")])
+
+        if file_path != "":
+            slm.save_mission(file_path, self.auto_mission_angle, self.auto_mission_spacing, self.auto_mission_padding, self.auto_mission_reverse, self.auto_mission_invert)
+        else:
+            print("File Save Canceled")
+
+
+    def load_mission_function(self):
+        global waypoint_coordinates
+        global waypoint_only_altitudes
+        global field_coordinates
+
+        file_path = filedialog.askopenfilename(filetypes=[("Veri Dosyaları", "*.json")])
+
+        if file_path != "":
+
+            ret = slm.load_mission(file_path)
+
+            waypoint_coordinates = ret["waypoints"]
+            waypoint_only_altitudes = ret["altitudes"]
+            serial_backend.end_of_wp_mission_behaviour_code = ret["end_of_mission_behavior_code"]
+            self.auto_mission_invert = ret["auto_mission_invert"]
+            self.auto_mission_reverse = ret["auto_mission_reverse"]
+            self.auto_mission_angle = ret["auto_mission_angle"]
+            self.auto_mission_spacing = ret["auto_mission_spacing"]
+            self.auto_mission_padding = ret["auto_mission_padding"]
+
+            if self.auto_mission_invert == 1:
+                self.create_mission_for_field_invert_checkbox.select()
+            else:
+                self.create_mission_for_field_invert_checkbox.deselect()
+
+            if self.auto_mission_reverse == 1:
+                self.create_mission_for_field_reverse_checkbox.select()
+            else:
+                self.create_mission_for_field_reverse_checkbox.deselect()
+
+            self.create_mission_for_field_spacing_slider.set(ret["auto_mission_spacing"])
+            self.create_mission_for_field_spacing_label.configure(text=f"Spc: {ret['auto_mission_spacing']:.1f}")
+
+            self.create_mission_for_field_padding_slider.set(ret["auto_mission_padding"])
+            self.create_mission_for_field_padding_label.configure(text=f"Pad: {ret['auto_mission_padding']:.1f}")
+
+            self.create_mission_for_field_angle_slider.set(ret["auto_mission_angle"])
+            self.create_mission_for_field_angle_label.configure(text=f"Agl: {ret['auto_mission_angle']:.0f}")
+
+            self.redraw_waypoint_markers()
+            total_dist = calculate_wp_distance()
+            self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+            self.redraw_wp_distance_markers()
+
+
+            for i in range(len(ret["field_points"])):
+
+                if i == 0:
+                    field_coordinates.append(ret["field_points"][i])
+                    self.field_polygon_1 = self.map_widget.set_polygon(field_coordinates, name="field_polygon_1", fill_color=None)
+                else:
+                    self.field_polygon_1.add_position(ret["field_points"][i][0], ret["field_points"][i][1], index=i+1)
+
+            self.field_polygon_1.draw()
+            self.redraw_field_markers()
+
+        else:
+            print("File Open Canceled")
+
+
+
     def add_waypoint_event(self, coords):
         global waypoint_counter, waypoint_altitude
 
-        if len(waypoint_coordinates) < 25:
+        if self.point_mode == "WP Mode":
 
-            if self.wp_altitude_input.get() != "":
-                alt = int(float(self.wp_altitude_input.get()) * 10)
-                if 0 <= alt <= 255:
-                    waypoint_altitude = alt
+            if len(waypoint_coordinates) < 25:
 
-            waypoint_coordinates.append((coords[0], coords[1]))
-            waypoint_only_altitudes.append(np.uint8(waypoint_altitude))
-            waypoint_markers.append(
-                self.map_widget.set_marker(coords[0], coords[1], icon=self.location_img, icon_anchor="s",
-                                           text=f"{waypoint_counter + 1}|{waypoint_altitude / 10}",
-                                           text_color="white", font=("Arial", 25, "bold")))
-            waypoint_counter += 1
-            if waypoint_counter > 1:
-                self.waypoint_path.set_position_list(waypoint_coordinates)
-            self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
-        else:
-            print("wp >= 25")
+                if self.wp_altitude_input.get() != "":
+                    alt = int(float(self.wp_altitude_input.get()) * 10)
+                    if 0 <= alt <= 255:
+                        waypoint_altitude = alt
+
+                waypoint_coordinates.append((coords[0], coords[1]))
+                # print("WP coord len: ", len(waypoint_coordinates))
+                waypoint_only_altitudes.append(np.uint8(waypoint_altitude))
+                waypoint_markers.append(self.map_widget.set_marker(coords[0], coords[1], icon=self.location_img, icon_anchor="s",
+                                                                   text=f"{waypoint_counter + 1}|{waypoint_altitude / 10}",
+                                                                   text_color="white", font=("Arial", 20, "bold")))
+                waypoint_counter += 1
+                if waypoint_counter > 1:
+                    self.waypoint_path.set_position_list(waypoint_coordinates)
+                total_dist = calculate_wp_distance()
+                self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+                self.redraw_wp_distance_markers()
+
+            else:
+                print("wp >= 25")
+
+        elif self.point_mode == "Field Mode":
+
+            field_markers.append(self.map_widget.set_marker(coords[0], coords[1], icon=self.polygon_edge_img))
+
+            if len(field_coordinates) == 0:
+                field_coordinates.append((coords[0], coords[1]))
+                self.field_polygon_1 = self.map_widget.set_polygon(field_coordinates,
+                                                                   # command=self.field_clicked_event,
+                                                                   name="field_polygon_1", fill_color=None)
+
+            else:
+                self.field_polygon_1.add_position(coords[0], coords[1], index=len(field_coordinates))
+
+            self.field_polygon_1.draw()
+
+
+
+
+
+
+
+
+
+
 
     def add_waypoint_to_home_event(self):
         global waypoint_counter, waypoint_altitude, telemetry_data_dict
@@ -1033,62 +1295,282 @@ class MainWindow:
                 if 0 <= alt <= 255:
                     waypoint_altitude = alt
 
-            waypoint_coordinates.append(
-                (telemetry_data_dict["gps_latitude_origin"], telemetry_data_dict["gps_longitude_origin"]))
+            waypoint_coordinates.append((telemetry_data_dict["gps_latitude_origin"], telemetry_data_dict["gps_longitude_origin"]))
             waypoint_only_altitudes.append(np.uint8(waypoint_altitude))
-            waypoint_markers.append(
-                self.map_widget.set_marker(telemetry_data_dict["gps_latitude_origin"],
-                                           telemetry_data_dict["gps_longitude_origin"], icon=self.location_img,
-                                           icon_anchor="s",
-                                           text=f"{waypoint_counter + 1}|{waypoint_altitude / 10}",
-                                           text_color="white", font=("Arial", 25, "bold")))
+            waypoint_markers.append(self.map_widget.set_marker(telemetry_data_dict["gps_latitude_origin"],
+                                                               telemetry_data_dict["gps_longitude_origin"], icon=self.location_img,
+                                                               icon_anchor="s",
+                                                               text=f"{waypoint_counter + 1}|{waypoint_altitude / 10}",
+                                                               text_color="white", font=("Arial", 20, "bold")))
             waypoint_counter += 1
             if waypoint_counter > 1:
                 self.waypoint_path.set_position_list(waypoint_coordinates)
-            self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
+            total_dist = calculate_wp_distance()
+            self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+            self.redraw_wp_distance_markers()
         else:
             print("WP home is zero or wp >= 25")
 
-    def delete_all_waypoints_event(self):
+
+
+
+
+
+
+    def delete_all_points_event(self):
+
+        if self.point_mode == "WP Mode":
+            self.clear_waypoints()
+
+        elif self.point_mode == "Field Mode":
+
+            field_coordinates.clear()
+
+            for item in field_markers:
+                item.delete()
+
+            field_markers.clear()
+            self.field_polygon_1.delete()
+
+
+
+
+
+
+
+
+
+    def clear_waypoints(self):
         global waypoint_counter
+
         waypoint_coordinates.clear()
         waypoint_only_altitudes.clear()
         for item in waypoint_markers:
             item.delete()
+
+        for item in wp_distance_markers:
+            item.delete()
+
         waypoint_counter = 0
         self.waypoint_path.set_position_list([(0.0, 0.0), (0.0, 0.0)])
-        self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
+        total_dist = calculate_wp_distance()
+        self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+        self.redraw_wp_distance_markers()
+
+
+
+
+
+
+
 
     def delete_waypoint_event(self, coords):
         global waypoint_counter
-        if len(waypoint_coordinates) == 1:
-            self.delete_all_waypoints_event()
-        else:
-            index, distance = find_nearest_coordinate(coords)
-            del waypoint_coordinates[index]
-            del waypoint_only_altitudes[index]
-            waypoint_markers[index].delete()
-            del waypoint_markers[index]
-            self.redraw_waypoint_markers()
-        self.wp_distance_label.configure(text=f"Distance:\n{(calculate_total_wp_distance() / 100.0):.1f}m")
+
+        if self.point_mode == "WP Mode":
+
+            if len(waypoint_coordinates) == 1:
+                self.delete_all_points_event()
+            else:
+                index, distance = find_nearest_coordinate(coords, waypoint_coordinates)
+                del waypoint_coordinates[index]
+                del waypoint_only_altitudes[index]
+                waypoint_markers[index].delete()
+                del waypoint_markers[index]
+                self.redraw_waypoint_markers()
+            total_dist = calculate_wp_distance()
+            self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+            self.redraw_wp_distance_markers()
+
+        elif self.point_mode == "Field Mode":
+
+            if len(field_coordinates) == 1:
+                self.delete_all_points_event()
+            else:
+                index, distance = find_nearest_coordinate(coords, field_coordinates)
+                self.field_polygon_1.remove_position(field_coordinates[index][0], field_coordinates[index][1])
+                self.redraw_field_markers()
+                self.field_polygon_1.draw()
+
+
+
+
+
+
+
+
+
+    def redraw_field_markers(self):
+
+        for index in field_markers:
+            index.delete()
+        field_markers.clear()
+
+        for index, value in enumerate(field_coordinates):
+            field_markers.append(self.map_widget.set_marker(value[0], value[1], icon=self.polygon_edge_img))
+
+
+
+
+
+
 
     def redraw_waypoint_markers(self):
         global waypoint_counter
+
         for index in waypoint_markers:
             index.delete()
         waypoint_markers.clear()
         for index, value in enumerate(waypoint_coordinates):
-            waypoint_markers.append(
-                self.map_widget.set_marker(value[0], value[1], icon=self.location_img, icon_anchor="s",
-                                           text=f"{index + 1}|{waypoint_only_altitudes[index] / 10}",
-                                           text_color="white",
-                                           font=("Arial", 25, "bold")))
+            waypoint_markers.append(self.map_widget.set_marker(value[0], value[1], icon=self.location_img, icon_anchor="s",
+                                                               text=f"{index + 1}|{waypoint_only_altitudes[index] / 10}",
+                                                               text_color="white",
+                                                               font=("Arial", 20, "bold")))
             waypoint_counter = index + 1
 
         if len(waypoint_coordinates) < 2:
             self.waypoint_path.set_position_list([(0.0, 0.0), (0.0, 0.0)])
         else:
             self.waypoint_path.set_position_list(waypoint_coordinates)
+
+        if serial_backend.end_of_wp_mission_behaviour_code == 0:
+            self.land_after_wp_checkbox.deselect()
+            self.rth_after_wp_checkbox.deselect()
+            self.land_after_wp_checkbox.configure(state="disabled")
+        elif serial_backend.end_of_wp_mission_behaviour_code == 1:
+            self.land_after_wp_checkbox.deselect()
+            self.land_after_wp_checkbox.configure(state="normal")
+            self.rth_after_wp_checkbox.select()
+        elif serial_backend.end_of_wp_mission_behaviour_code == 2:
+            self.land_after_wp_checkbox.select()
+            self.land_after_wp_checkbox.configure(state="normal")
+            self.rth_after_wp_checkbox.select()
+
+
+
+
+
+
+
+    def redraw_wp_distance_markers(self):
+
+        for item in wp_distance_markers:
+            item.delete()
+
+        wp_distance_markers.clear()
+
+        if len(wp_distance_marker_coordinates) > 0:
+            for index, item in enumerate(wp_distance_marker_coordinates):
+                wp_distance_markers.append(self.map_widget.set_marker(item[0], item[1], icon=self.dist_empty_img, icon_anchor="n",
+                                                                      text=f"{distance_between_wp_coordinates_list[index]:.1f}",
+                                                                      text_color="white", font=("Arial", 15, "bold")))
+
+
+
+
+
+
+    def create_mission_for_field_angle_slider_event(self, value):
+        self.auto_mission_angle = self.create_mission_for_field_angle_slider.get()
+        self.create_mission_for_field_angle_label.configure(text=f"Agl: {self.auto_mission_angle:.0f}")
+
+    def create_mission_for_field_padding_slider_event(self, value):
+        self.auto_mission_padding = self.create_mission_for_field_padding_slider.get()
+        self.create_mission_for_field_padding_label.configure(text=f"Pad: {self.auto_mission_padding:.1f}")
+
+
+    def create_mission_for_field_spacing_slider_event(self, value):
+        self.auto_mission_spacing = self.create_mission_for_field_spacing_slider.get()
+        self.create_mission_for_field_spacing_label.configure(text=f"Spc: {self.auto_mission_spacing:.1f}")
+
+    def create_mission_for_field_invert_checkbox_event(self):
+        value = self.create_mission_for_field_invert_checkbox_variable.get()
+        if value == "off":
+            self.auto_mission_invert = 0
+        else:
+            self.auto_mission_invert = 1
+
+
+    def create_mission_for_field_reverse_checkbox_event(self):
+        value = self.create_mission_for_field_reverse_checkbox_variable.get()
+        if value == "off":
+            self.auto_mission_reverse = 0
+        else:
+            self.auto_mission_reverse = 1
+
+
+    def create_mission_for_field_function(self):
+        global waypoint_counter
+
+
+        if len(field_coordinates) > 2:
+
+            self.clear_waypoints()
+            amc.request_create_mission_from_point_list(field_coordinates, self.auto_mission_spacing, self.auto_mission_angle+5, self.auto_mission_padding, self.auto_mission_invert)
+            self.is_auto_mission_create_requested = 1
+            alt = 0
+            # if no telemetry, feel free to block the main loop
+            # if telemetry available than dont block, check if mission ready with ui update loop
+            if telemetry_data_dict["packet_drop_ratio"] == 100:
+
+                while self.is_auto_mission_create_requested == 1:
+
+                    if amc.is_auto_mission_planned():
+
+                        if self.auto_mission_reverse == 1:
+                            amc.bas_ve_son_noktalar_latlon.reverse()
+
+                        self.is_auto_mission_create_requested = 0
+
+                        if self.wp_altitude_input.get() != "":
+                            a = int(float(self.wp_altitude_input.get()) * 10)
+                            if 0 <= alt <= 255:
+                                alt = a
+
+                        for i in range(len(amc.bas_ve_son_noktalar_latlon)):
+
+                            if i < 25:
+                                # waypoint_coordinates.append((all_points[i][0], all_points[i][1]))
+                                waypoint_coordinates.append((amc.bas_ve_son_noktalar_latlon[i][0], amc.bas_ve_son_noktalar_latlon[i][1]))
+                                waypoint_counter = 24
+                                waypoint_only_altitudes.append(alt)
+
+                        self.redraw_waypoint_markers()
+                        total_dist = calculate_wp_distance()
+                        self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+                        self.redraw_wp_distance_markers()
+
+                    else:
+                        time.sleep(0.5)
+
+                print("all: ", amc.bas_ve_son_noktalar_latlon)
+                print("field: ", field_coordinates)
+        else:
+
+            print("field needs to be more than 2 points")
+            # print("all: ", all_points)
+            # print("wp: ", wp)
+
+    def rth_after_wp_checkbox_event(self):
+
+        value = self.rth_after_wp_checkbox_variable.get()
+
+        if value == "off":
+            self.land_after_wp_checkbox.deselect()
+            self.land_after_wp_checkbox.configure(state="disabled")
+            serial_backend.end_of_wp_mission_behaviour_code = 0
+        else:
+            self.land_after_wp_checkbox.configure(state="normal")
+            serial_backend.end_of_wp_mission_behaviour_code = 1
+
+    def land_after_wp_checkbox_event(self):
+
+        value = self.land_after_wp_checkbox_variable.get()
+
+        if value == "off":
+            serial_backend.end_of_wp_mission_behaviour_code = 1
+        else:
+            serial_backend.end_of_wp_mission_behaviour_code = 2
 
     def center_drone(self):
         # This has to be 2 times to work
@@ -1184,7 +1666,9 @@ class MainWindow:
                 serial_backend.send_gamepad_data = False
                 serial_backend.send_acc_calib_data = True
 
-            print(serial_backend.acc_calib_result)
+    def wp_field_mode_selection(self):
+        self.point_mode = self.wp_field_mode_tabview.get()
+
 
     def close_application(self):
         self.isAppAlive = False
@@ -1192,8 +1676,8 @@ class MainWindow:
         quit()
 
 
-def find_nearest_coordinate(target_coord):
-    if not waypoint_coordinates:
+def find_nearest_coordinate(target_coord, coord_list):
+    if not coord_list:
         return None  # Koordinat listesi boşsa None döndür
 
     # Başlangıçta en küçük mesafeyi sonsuz olarak ayarlayın
@@ -1201,7 +1685,7 @@ def find_nearest_coordinate(target_coord):
     nearest_index = None
 
     # Koordinat listesinde dolaşın ve en yakın koordinatı bulun
-    for i, coord in enumerate(waypoint_coordinates):
+    for i, coord in enumerate(coord_list):
         x, y = coord
         target_x, target_y = target_coord
 
@@ -1322,17 +1806,21 @@ def get_distance_from_lat_lon(lat1, lon1, lat2, lon2):
     return distance_cm
 
 
-def calculate_total_wp_distance():
-    global total_wp_distance
+def calculate_wp_distance():
+    global total_wp_distance, distance_between_wp_coordinates_list, wp_distance_marker_coordinates
     total_wp_distance = 0
+    distance_between_wp_coordinates_list.clear()
+    wp_distance_marker_coordinates.clear()
 
     if len(waypoint_coordinates) > 1:
 
         for i in range(1, len(waypoint_coordinates)):
             lat1, lon1 = waypoint_coordinates[i - 1]
             lat2, lon2 = waypoint_coordinates[i]
-            total_wp_distance = total_wp_distance + get_distance_from_lat_lon(lat1, lon1, lat2, lon2)
-
+            dist = get_distance_from_lat_lon(lat1, lon1, lat2, lon2) / 100.0  # cm to m
+            distance_between_wp_coordinates_list.append(dist)
+            total_wp_distance = total_wp_distance + dist
+            wp_distance_marker_coordinates.append(((lat1 + lat2) / 2.0, (lon1 + lon2) / 2.0))
     return total_wp_distance
 
 

@@ -1,4 +1,3 @@
-import sys
 import com_port_selection
 import serial_backend
 import gamepad_handler
@@ -27,6 +26,7 @@ def thread1():
             config_ui.show_config_window()
         elif ret == 3:
             motor_test_ui.show_motor_test_window()
+
         if counter > 1:
             counter = 0
             ui_main.update_telemetry_ui()

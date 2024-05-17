@@ -1,5 +1,6 @@
 telemetry_data_dict = {
-    "packet_delivery": 0.0,
+    "RSSI": 0.0,
+    "packet_drop_ratio": 0.0,
     "battery_voltage": 0.0,
     "pitch": 0.0,
     "roll": 0.0,
@@ -16,36 +17,28 @@ telemetry_data_dict = {
     "flow_quality": 0.0,
     "flight_mode": 0.0,
     "arm_status": 0.0,
-
     "target_pitch": 0.0,
     "target_roll": 0.0,
-
     "target_heading": 0.0,
     "target_pitch_dps": 0.0,
     "target_roll_dps": 0.0,
-
     "target_yaw_dps": 0.0,
     "target_altitude": 0.0,
     "target_velocity_x_ms": 0.0,
     "target_velocity_y_ms": 0.0,
     "target_velocity_z_ms": 0.0,
-
     "barometer_pressure": 0.0,
     "barometer_temperature": 0.0,
     "imu_temperature": 0.0,
-
     "gyro_x_dps": 0.0,
     "gyro_y_dps": 0.0,
     "gyro_z_dps": 0.0,
-
     "acc_x_ms2": 0.0,
     "acc_y_ms2": 0.0,
     "acc_z_ms2": 0.0,
-
     "mag_x_gauss": 0.0,
     "mag_y_gauss": 0.0,
     "mag_z_gauss": 0.0,
-
     "gps_fix": 0.0,
     "gps_satCount": 0.0,
     "gps_latitude": 0.0,
@@ -64,17 +57,17 @@ telemetry_data_dict = {
     "target_longitude": 0.0,
     "distance_m_2d": 0.0,
     "distance_m_3d": 0.0,
-    "velocity_ms_2d": 0.0
+    "velocity_ms_2d": 0.0,
+    "is_gnss_sanity_check_ok": 0.0
 }
 
 telemetry_format_dict = {
-    "packet_delivery": "B",
-
+    "RSSI": "B",
+    "packet_drop_ratio": "B",
     "battery_voltage": "f",
     "pitch": "f",
     "roll": "f",
     "heading": "f",
-
     "altitude": "h",
     "altitude_calibrated": "h",
     "tof_distance_1": "h",
@@ -84,11 +77,9 @@ telemetry_format_dict = {
     "velocity_z_ms": "h",
     "flow_x_velocity": "h",
     "flow_y_velocity": "h",
-
     "flow_quality": "B",
     "flight_mode": "B",
     "arm_status": "B",
-
     "target_pitch": "f",
     "target_roll": "f",
     "target_heading": "f",
@@ -99,7 +90,6 @@ telemetry_format_dict = {
     "target_velocity_x_ms": "f",
     "target_velocity_y_ms": "f",
     "target_velocity_z_ms": "f",
-
     "barometer_pressure": "h",
     "barometer_temperature": "H",
     "imu_temperature": "H",
@@ -112,10 +102,8 @@ telemetry_format_dict = {
     "mag_x_gauss": "h",
     "mag_y_gauss": "h",
     "mag_z_gauss": "h",
-
     "gps_fix": "B",
     "gps_satCount": "B",
-
     "gps_latitude": "i",
     "gps_longitude": "i",
     "gps_altitude_m": "i",
@@ -123,10 +111,8 @@ telemetry_format_dict = {
     "gps_eastVel_ms": "i",
     "gps_downVel_ms": "i",
     "gps_headingOfMotion": "i",
-
     "gps_hdop": "H",
     "gps_vdop": "H",
-
     "gps_latitude_origin": "i",
     "gps_longitude_origin": "i",
     "gps_altitude_origin": "i",
@@ -134,31 +120,29 @@ telemetry_format_dict = {
     "target_longitude": "i",
     "distance_m_2d": "f",
     "distance_m_3d": "f",
-    "velocity_ms_2d": "f"
+    "velocity_ms_2d": "f",
+    "gnss_sanity_check_ok": "B"
 }
 
 telemetry_scale_dict = {
-    "packet_delivery": 1,
-
+    "RSSI": -1,
+    "packet_drop_ratio": 1,
     "battery_voltage": 1,
     "pitch": 1,
     "roll": 1,
     "heading": 1,
-
     "altitude": 100.0,
     "altitude_calibrated": 100,
-    "tof_distance_1": 1,
-    "tof_distance_2": 1,
+    "tof_distance_1": 100.0,
+    "tof_distance_2": 1.0,
     "velocity_x_ms": 1000.0,
     "velocity_y_ms": 1000.0,
     "velocity_z_ms": 1000.0,
-    "flow_x_velocity": 10.0,
-    "flow_y_velocity": 10.0,
-
+    "flow_x_velocity": 1000.0,
+    "flow_y_velocity": 1000.0,
     "flow_quality": 1,
     "flight_mode": 1,
     "arm_status": 1,
-
     "target_pitch": 1,
     "target_roll": 1,
     "target_heading": 1,
@@ -169,7 +153,6 @@ telemetry_scale_dict = {
     "target_velocity_x_ms": 1,
     "target_velocity_y_ms": 1,
     "target_velocity_z_ms": 1,
-
     "barometer_pressure": 10.0,
     "barometer_temperature": 100.0,
     "imu_temperature": 100.0,
@@ -182,10 +165,8 @@ telemetry_scale_dict = {
     "mag_x_gauss": 1,
     "mag_y_gauss": 1,
     "mag_z_gauss": 1,
-
     "gps_fix": 1,
     "gps_satCount": 1,
-
     "gps_latitude": 10000000.0,
     "gps_longitude": 10000000.0,
     "gps_altitude_m": 1000.0,
@@ -193,10 +174,8 @@ telemetry_scale_dict = {
     "gps_eastVel_ms": 1000.0,
     "gps_downVel_ms": 1000.0,
     "gps_headingOfMotion": 100000.0,
-
     "gps_hdop": 100.0,
     "gps_vdop": 100.0,
-
     "gps_latitude_origin": 10000000.0,
     "gps_longitude_origin": 10000000.0,
     "gps_altitude_origin": 1000.0,
@@ -204,47 +183,39 @@ telemetry_scale_dict = {
     "target_longitude": 10000000.0,
     "distance_m_2d": 1,
     "distance_m_3d": 1,
-    "velocity_ms_2d": 1
+    "velocity_ms_2d": 1,
+    "is_gnss_sanity_check_ok": 1
 }
 
 config_data_dict = {
     "pitch_p": 0.0,
     "pitch_i": 0.0,
     "pitch_d": 0.0,
-
     "roll_p": 0.0,
     "roll_i": 0.0,
     "roll_d": 0.0,
-
     "yaw_p": 0.0,
     "yaw_i": 0.0,
-
     "ff_gain": 0.0,
-
     "position_p": 0.0,
     "position_i": 0.0,
-
     "altitude_p": 0.0,
     "altitude_i": 0.0,
     "altitude_d": 0.0,
-
     "max_pitch_angle": 0.0,
     "max_roll_angle": 0.0,
     "max_pitch_rate": 0.0,
     "max_roll_rate": 0.0,
     "max_yaw_rate": 0.0,
-
     "pitch_rate_scale": 0.0,
     "roll_rate_scale": 0.0,
     "yaw_rate_scale": 0.0,
     "max_vertical_velocity": 0.0,
     "max_horizontal_velocity": 0.0,
-
     "v_sens_gain": 0.0,
     "v_drop_compensation_gain": 0.0,
     "takeoff_altitude": 0.0,
     "hover_throttle": 0.0,
-
     "notch_1_freq": 0.0,
     "notch_1_bandwidth": 0.0,
     "notch_2_freq": 0.0,
@@ -256,7 +227,6 @@ config_data_dict = {
     "velz_filter_beta": 0.0,
     "velz_filter_zeta": 0.0,
     "velxy_filter_beta": 0.0,
-
     "alt_to_vel_gain": 0.0,
     "wp_threshold_cm": 0.0,
     "wp_heading_correct_gain": 0.0,
@@ -281,13 +251,17 @@ gamepad_data_dict = {
 }
 
 waypoint_coordinates = []
+field_coordinates = []
 waypoint_only_latitudes = []
 waypoint_only_longitudes = []
 waypoint_only_altitudes = []
 waypoint_markers = []
+field_markers = []
+wp_distance_markers = []
+wp_distance_marker_coordinates = []
 waypoint_counter = 0
 waypoint_altitude = 0
 motor_test_results = [0.0, 0.0, 0.0, 0.0]
 total_wp_distance = 0
+distance_between_wp_coordinates_list = []
 drone_path_coordinates = []
-

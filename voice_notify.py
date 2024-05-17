@@ -1,7 +1,7 @@
 from playsound import playsound
 from data_struct import telemetry_data_dict
 
-prev_packet_delivery = telemetry_data_dict['packet_delivery']
+prev_packet_delivery = telemetry_data_dict['packet_drop_ratio']
 is_gps_reliable = False
 is_battery_low = False
 is_takeoff = False
@@ -15,21 +15,19 @@ def check_for_voice_notify():
 
     if is_enabled:
         # TELEMETRY SIGNAL NOTIFICATION
-        if prev_packet_delivery == 0 and telemetry_data_dict["packet_delivery"] > 0:
+        if prev_packet_delivery == 100 and telemetry_data_dict["packet_drop_ratio"] < 100:
             voice_queue.append("voices\\telemetry_recovered.mp3")
             is_battery_low = False
 
-        elif telemetry_data_dict["packet_delivery"] == 0 and prev_packet_delivery > 0:
+        elif telemetry_data_dict["packet_drop_ratio"] == 100 and prev_packet_delivery < 100:
             voice_queue.append("voices\\telemetry_lost.mp3")
 
         # GNSS SIGNAL NOTIFICATION
-        if is_gps_reliable and (telemetry_data_dict["gps_fix"] < 3 or telemetry_data_dict["gps_satCount"] < 6 or
-                                telemetry_data_dict["gps_hdop"] > 2.0):
+        if is_gps_reliable and (telemetry_data_dict["is_gnss_sanity_check_ok"] != 1):
             is_gps_reliable = False
             voice_queue.append("voices\\gnss_unreliable.mp3")
 
-        elif not is_gps_reliable and (telemetry_data_dict["gps_fix"] >= 3 and telemetry_data_dict["gps_satCount"] >= 6
-                                      and telemetry_data_dict["gps_hdop"] <= 2.0):
+        elif not is_gps_reliable and (telemetry_data_dict["is_gnss_sanity_check_ok"] == 1):
             voice_queue.append("voices\\gnss_fix_established.mp3")
             is_gps_reliable = True
 
@@ -60,7 +58,7 @@ def check_for_voice_notify():
 
         process_voice_notify_queue()
 
-    prev_packet_delivery = telemetry_data_dict["packet_delivery"]
+    prev_packet_delivery = telemetry_data_dict["packet_drop_ratio"]
 
 
 def process_voice_notify_queue():

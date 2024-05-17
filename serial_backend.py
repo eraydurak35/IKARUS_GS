@@ -28,6 +28,8 @@ mag_y_raw = []
 mag_z_raw = []
 acc_calib_values = []
 acc_calib_result = []
+# (0 hold) (1 rth) (2 rth and land)
+end_of_wp_mission_behaviour_code = 0
 
 
 def port_init(com_port):
@@ -53,7 +55,7 @@ def port_init(com_port):
 
 
 def read_serial():
-    global serial_instance
+    global serial_instance, end_of_wp_mission_behaviour_code
 
     data_header = serial_instance.read(1)
 
@@ -127,6 +129,7 @@ def read_serial():
                     mag_x_raw.append(telemetry_data_dict["mag_x_gauss"])
                     mag_y_raw.append(telemetry_data_dict["mag_y_gauss"])
                     mag_z_raw.append(telemetry_data_dict["mag_z_gauss"])
+
             else:
                 print("checksum error telem!!")
 
@@ -163,8 +166,8 @@ def read_serial():
     elif data_header == b'\xfd':
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
 
-        if size != 228:
-            print("wp size is not 228")
+        if size != 229:
+            print("wp size is not 229")
 
         else:
             data_bytes = serial_instance.read(size)
@@ -193,6 +196,9 @@ def read_serial():
                         waypoint_coordinates.append((parsed_data[i], parsed_data[i + 25]))
                         waypoint_only_altitudes.append(np.uint8(parsed_data[i + 50]))
 
+                one_byte = bytearray(1)
+                one_byte[0] = data_bytes[225]
+                end_of_wp_mission_behaviour_code = struct.unpack('B', one_byte)[0]
                 return 1
             else:
                 print("checksum error wp!!")
@@ -294,7 +300,12 @@ def write_serial():
         for values in wp_altitudes:
             packed_data = packed_data + struct.pack('B', values)
 
-        total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes)
+        # NEW ADDED
+        packed_data = packed_data + struct.pack('B', end_of_wp_mission_behaviour_code)
+        total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes) + 1
+        # NEW ADDED
+
+        # total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes)
 
         cs1, cs2 = checksum_generate(packed_data, total_len)
 
@@ -416,6 +427,7 @@ def write_serial():
                        + struct.pack('B', footer))
 
         serial_instance.write(packed_data)
+
 
 def checksum_generate(data_byte, size):
     data = bytearray(data_byte)
