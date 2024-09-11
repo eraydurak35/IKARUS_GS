@@ -1,6 +1,6 @@
+import time
 import serial
 import struct
-
 import mag_calibration
 from data_struct import *
 import pandas as pd
@@ -30,7 +30,9 @@ acc_calib_values = []
 acc_calib_result = []
 # (0 hold) (1 rth) (2 rth and land)
 end_of_wp_mission_behaviour_code = 0
-
+parsed_wp_data1 = []
+parsed_wp_data2 = []
+wp_data_recv_time = 0
 
 def port_init(com_port):
     global serial_instance
@@ -166,42 +168,84 @@ def read_serial():
     elif data_header == b'\xfd':
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
 
-        if size != 229:
-            print("wp size is not 229")
+        if size != 230:
+            print("wp size is not 230")
 
         else:
             data_bytes = serial_instance.read(size)
             is_ok = checksum_validate(data_bytes)
             if is_ok == 1:
-                parsed_data = []
-
-                for i in range(0, 200, 4):
-                    four_bytes = bytearray(4)
-                    four_bytes[0] = data_bytes[i]
-                    four_bytes[1] = data_bytes[i + 1]
-                    four_bytes[2] = data_bytes[i + 2]
-                    four_bytes[3] = data_bytes[i + 3]
-                    parsed_data.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
-
-                for i in range(200, 225, 1):
-                    one_byte = bytearray(1)
-                    one_byte[0] = data_bytes[i]
-                    parsed_data.append(struct.unpack('B', one_byte)[0])
-
-                waypoint_coordinates.clear()
-                waypoint_only_altitudes.clear()
-                for i in range(0, 25, 1):
-
-                    if parsed_data[i] != 0 or parsed_data[i + 25] != 0:
-                        waypoint_coordinates.append((parsed_data[i], parsed_data[i + 25]))
-                        waypoint_only_altitudes.append(np.uint8(parsed_data[i + 50]))
 
                 one_byte = bytearray(1)
-                one_byte[0] = data_bytes[225]
-                end_of_wp_mission_behaviour_code = struct.unpack('B', one_byte)[0]
-                return 1
+                one_byte[0] = data_bytes[0]
+                packet_index = struct.unpack('B', one_byte)[0]
+
+
+
+                if packet_index == 1:
+
+                    global parsed_wp_data1, parsed_wp_data2, wp_data_recv_time
+                    parsed_wp_data1.clear()
+
+                    wp_data_recv_time = time.monotonic()
+
+                    for i in range(1, 201, 4):
+                        four_bytes = bytearray(4)
+                        four_bytes[0] = data_bytes[i]
+                        four_bytes[1] = data_bytes[i + 1]
+                        four_bytes[2] = data_bytes[i + 2]
+                        four_bytes[3] = data_bytes[i + 3]
+                        parsed_wp_data1.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
+
+                    for i in range(201, 226, 1):
+                        one_byte = bytearray(1)
+                        one_byte[0] = data_bytes[i]
+                        parsed_wp_data1.append(struct.unpack('B', one_byte)[0])
+
+
+
+                elif packet_index == 2 and ((time.monotonic() - wp_data_recv_time) * 1000) < 500:
+
+
+                    parsed_wp_data2.clear()
+
+                    for i in range(1, 201, 4):
+                        four_bytes = bytearray(4)
+                        four_bytes[0] = data_bytes[i]
+                        four_bytes[1] = data_bytes[i + 1]
+                        four_bytes[2] = data_bytes[i + 2]
+                        four_bytes[3] = data_bytes[i + 3]
+                        parsed_wp_data2.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
+
+                    for i in range(201, 226, 1):
+                        one_byte = bytearray(1)
+                        one_byte[0] = data_bytes[i]
+                        parsed_wp_data2.append(struct.unpack('B', one_byte)[0])
+
+
+                    waypoint_coordinates.clear()
+                    waypoint_only_altitudes.clear()
+
+                    for i in range(0, 25, 1):
+                        if parsed_wp_data1[i] != 0 or parsed_wp_data1[i + 25] != 0:
+                            waypoint_coordinates.append((parsed_wp_data1[i], parsed_wp_data1[i + 25]))
+                            waypoint_only_altitudes.append(np.uint8(parsed_wp_data1[i + 50]))
+
+                    for i in range(0, 25, 1):
+                        if parsed_wp_data2[i] != 0 or parsed_wp_data2[i + 25] != 0:
+                            waypoint_coordinates.append((parsed_wp_data2[i], parsed_wp_data2[i + 25]))
+                            waypoint_only_altitudes.append(np.uint8(parsed_wp_data2[i + 50]))
+
+                    one_byte = bytearray(1)
+                    one_byte[0] = data_bytes[226]
+                    end_of_wp_mission_behaviour_code = struct.unpack('B', one_byte)[0]
+
+                    return 1
+
+                return 0
             else:
                 print("checksum error wp!!")
+
 
     elif data_header == b'\xfc':
         size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
@@ -275,8 +319,16 @@ def write_serial():
         serial_instance.write(packed_data)
 
     elif send_waypoints_data:
+
         send_waypoints_data = False
         send_gamepad_data = True
+
+
+
+
+
+
+
 
         waypoint_only_latitudes.clear()
         waypoint_only_longitudes.clear()
@@ -287,35 +339,54 @@ def write_serial():
 
         wp_altitudes = waypoint_only_altitudes.copy()
 
-        if len(waypoint_coordinates) < 25:
-            waypoint_only_latitudes.extend([np.int32(0)] * (25 - len(waypoint_coordinates)))
-            waypoint_only_longitudes.extend([np.int32(0)] * (25 - len(waypoint_coordinates)))
-            wp_altitudes.extend([np.uint8(0)] * (25 - len(waypoint_coordinates)))
+        if len(waypoint_coordinates) < waypoint_limit:
+            waypoint_only_latitudes.extend([np.int32(0)] * (waypoint_limit - len(waypoint_coordinates)))
+            waypoint_only_longitudes.extend([np.int32(0)] * (waypoint_limit - len(waypoint_coordinates)))
+            wp_altitudes.extend([np.uint8(0)] * (waypoint_limit - len(waypoint_coordinates)))
 
-        packed_data = bytes()
-        for values in waypoint_only_latitudes:
-            packed_data = packed_data + struct.pack('i', values)
-        for values in waypoint_only_longitudes:
-            packed_data = packed_data + struct.pack('i', values)
-        for values in wp_altitudes:
-            packed_data = packed_data + struct.pack('B', values)
 
-        # NEW ADDED
-        packed_data = packed_data + struct.pack('B', end_of_wp_mission_behaviour_code)
-        total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes) + 1
-        # NEW ADDED
+        for i in range(2):
 
-        # total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes)
 
-        cs1, cs2 = checksum_generate(packed_data, total_len)
+            packed_data = bytes()
 
-        packed_data = (struct.pack('B', 253)
-                       + struct.pack('B', total_len + 3)
-                       + packed_data
-                       + struct.pack('B', cs1)
-                       + struct.pack('B', cs2)
-                       + struct.pack('B', 0x69))
-        serial_instance.write(packed_data)
+            packed_data = packed_data + struct.pack('B', i+1)
+
+            for values in waypoint_only_latitudes[25*i:25*(i+1)]:
+                packed_data = packed_data + struct.pack('i', values)
+            for values in waypoint_only_longitudes[25*i:25*(i+1)]:
+                packed_data = packed_data + struct.pack('i', values)
+            for values in wp_altitudes[25*i:25*(i+1)]:
+                packed_data = packed_data + struct.pack('B', values)
+
+            # NEW ADDED
+            packed_data = packed_data + struct.pack('B', end_of_wp_mission_behaviour_code)
+            # total_len = len(waypoint_only_latitudes) * 4 + len(waypoint_only_longitudes) * 4 + len(wp_altitudes) + 1
+            total_len = len(packed_data)
+            # NEW ADDED
+
+            cs1, cs2 = checksum_generate(packed_data, total_len)
+
+            packed_data = (struct.pack('B', 253)
+                           + struct.pack('B', total_len + 3)
+                           + packed_data
+                           + struct.pack('B', cs1)
+                           + struct.pack('B', cs2)
+                           + struct.pack('B', 0x69))
+
+            serial_instance.write(packed_data)
+
+            time.sleep(0.2)
+
+
+
+
+
+
+
+
+
+
 
     elif request_config_data:
 

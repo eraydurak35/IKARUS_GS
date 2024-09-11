@@ -33,7 +33,7 @@
 # import math
 #
 # # Orijinal ikonun yüklenmesi
-# icon = Image.open('kaynak_foto.png')
+# icon = Image.open('images/drone_pos/drone_icon.png')
 #
 # # Yeni görsellerin boyutları
 # new_size = (1024, 1024)
@@ -486,5 +486,3 @@
 #
 # print(okunan_veri["waypoints"])
 # print(okunan_veri["field_points"])
-
-

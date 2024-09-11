@@ -92,7 +92,7 @@ def grid_noktalari_donustur_ve_kontrol_et(noktalar, grid_boyutu, acı, maksimum_
                 mesafe = kenara_olan_mesafeyi_hesapla(dondurulmus_nokta, cokgen)
                 if mesafe >= maksimum_izin_verilen_kenar_mesafesi:
                     icerideki_noktalar.append(dondurulmus_nokta)
-            y += 0.2 #grid_boyutu # * y_corrention
+            y += 0.5 #grid_boyutu # * y_corrention
         x += grid_boyutu# * x_correction
 
     return icerideki_noktalar

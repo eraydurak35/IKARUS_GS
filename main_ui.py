@@ -1,12 +1,10 @@
 import time
-
 import customtkinter as ctk
 from customtkinter import filedialog
 import tkinter
 import numpy as np
 from PIL import Image, ImageTk
 from data_struct import *
-import data_struct as ds
 import serial_backend
 import tkintermapview
 import os
@@ -42,7 +40,6 @@ class MainWindow:
         self.root.attributes('-fullscreen', True)
         self.isAppAlive = True
         self.isBlackBoxRecording = False
-        self.map_follow_drone = False
         self.point_mode = "WP Mode"
         self.auto_mission_padding = 0
         self.auto_mission_angle = 0
@@ -50,6 +47,9 @@ class MainWindow:
         self.auto_mission_invert = 0
         self.auto_mission_reverse = 0
         self.is_auto_mission_create_requested = 0
+        self.font = ("Ezarion", 16, "bold")
+        self.font2 = ("Ezarion", 18, "bold")
+        self.font3 = ("Ezarion", 12, "bold")
 
         self.close_img = ctk.CTkImage(Image.open("images/Close.png"), size=(30, 30))
         self.config_img = ctk.CTkImage(Image.open("images/settings_1.png"), size=(40, 40))
@@ -66,81 +66,25 @@ class MainWindow:
         self.request_wp_img = ctk.CTkImage(Image.open("images/recycling-point_white.png"), size=(24, 24))
         self.delete_trail_img = ctk.CTkImage(Image.open("images/delete_trail.png"), size=(24, 24))
 
-        self.drone_0_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_0_deg.png").resize((90, 90)))
-        self.drone_10_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_10_deg.png").resize((90, 90)))
-        self.drone_20_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_20_deg.png").resize((90, 90)))
-        self.drone_30_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_30_deg.png").resize((90, 90)))
-        self.drone_40_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_40_deg.png").resize((90, 90)))
-        self.drone_50_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_50_deg.png").resize((90, 90)))
-        self.drone_60_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_60_deg.png").resize((90, 90)))
-        self.drone_70_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_70_deg.png").resize((90, 90)))
-        self.drone_80_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_80_deg.png").resize((90, 90)))
-        self.drone_90_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_90_deg.png").resize((90, 90)))
-        self.drone_100_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_100_deg.png").resize((90, 90)))
-        self.drone_110_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_110_deg.png").resize((90, 90)))
-        self.drone_120_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_120_deg.png").resize((90, 90)))
-        self.drone_130_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_130_deg.png").resize((90, 90)))
-        self.drone_140_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_140_deg.png").resize((90, 90)))
-        self.drone_150_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_150_deg.png").resize((90, 90)))
-        self.drone_160_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_160_deg.png").resize((90, 90)))
-        self.drone_170_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_170_deg.png").resize((90, 90)))
-        self.drone_180_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_180_deg.png").resize((90, 90)))
-        self.drone_190_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_190_deg.png").resize((90, 90)))
-        self.drone_200_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_200_deg.png").resize((90, 90)))
-        self.drone_210_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_210_deg.png").resize((90, 90)))
-        self.drone_220_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_220_deg.png").resize((90, 90)))
-        self.drone_230_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_230_deg.png").resize((90, 90)))
-        self.drone_240_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_240_deg.png").resize((90, 90)))
-        self.drone_250_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_250_deg.png").resize((90, 90)))
-        self.drone_260_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_260_deg.png").resize((90, 90)))
-        self.drone_270_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_270_deg.png").resize((90, 90)))
-        self.drone_280_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_280_deg.png").resize((90, 90)))
-        self.drone_290_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_290_deg.png").resize((90, 90)))
-        self.drone_300_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_300_deg.png").resize((90, 90)))
-        self.drone_310_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_310_deg.png").resize((90, 90)))
-        self.drone_320_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_320_deg.png").resize((90, 90)))
-        self.drone_330_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_330_deg.png").resize((90, 90)))
-        self.drone_340_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_340_deg.png").resize((90, 90)))
-        self.drone_350_deg_img = ImageTk.PhotoImage(
-            Image.open("images/drone_pos/drone_pos_icon_350_deg.png").resize((90, 90)))
+        # Resimlerin saklanacağı liste
+        self.cog_direction_images_degree_list = []
+        self.drone_images_degree_list = []
+        self.target_direction_images_degree_list = []
 
-        self.location_img = ImageTk.PhotoImage(Image.open("images/location_icon.png").resize((35, 35)))
-        self.drone_origin_img = ImageTk.PhotoImage(Image.open("images/home_location.png").resize((35, 35)))
+        # 0'dan 350'ye kadar 10'ar artışla döngü oluştur
+        for deg in range(0, 360, 10):
+            # Resmi aç, boyutlandır ve ImageTk.PhotoImage ile yükle
+            img1 = ImageTk.PhotoImage(Image.open(f"images/cog_directions/cog_direction_{deg}_deg.png").resize((300, 300)))
+            img2 = ImageTk.PhotoImage(Image.open(f"images/drone_pos/drone_pos_icon_{deg}_deg.png").resize((80, 80)))
+            img3 = ImageTk.PhotoImage(Image.open(f"images/target_direction/target_direction_{deg}_deg.png").resize((300, 300)))
+
+            # Resmi listeye ekle
+            self.cog_direction_images_degree_list.append(img1)
+            self.drone_images_degree_list.append(img2)
+            self.target_direction_images_degree_list.append(img3)
+
+        self.location_img = ImageTk.PhotoImage(Image.open("images/location_icon.png").resize((25, 25)))
+        self.drone_origin_img = ImageTk.PhotoImage(Image.open("images/home_location.png").resize((25, 25)))
         self.target_location_img = ImageTk.PhotoImage(Image.open("images/target_pointer.png").resize((35, 40)))
         self.dist_empty_img = ImageTk.PhotoImage(Image.open("images/empty.png").resize((45, 45)))
         self.polygon_edge_img = ImageTk.PhotoImage(Image.open("images/polygon_edge_marker.png").resize((15, 15)))
@@ -154,51 +98,24 @@ class MainWindow:
         database_path = os.path.join(script_directory, "offline_map_tiles.db")
 
         self.map_widget = tkintermapview.TkinterMapView(self.map_frame, width=1600, height=830, corner_radius=10,
-                                                        use_database_only=True, database_path=database_path)
+                                                        use_database_only=False, database_path=database_path)
 
         self.map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
         self.map_widget.set_position(39.110946, 27.187785)
         self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
 
-        self.map_widget.add_right_click_menu_command(label="Add Point",
-                                                     command=self.add_waypoint_event,
-                                                     pass_coords=True)
-
-        self.map_widget.add_right_click_menu_command(label="",
-                                                     command=dummy_func,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="Add WP to Home",
-                                                     command=self.add_waypoint_to_home_event,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="",
-                                                     command=dummy_func,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="Delete Point",
-                                                     command=self.delete_waypoint_event,
-                                                     pass_coords=True)
-
-        self.map_widget.add_right_click_menu_command(label="",
-                                                     command=dummy_func,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="Delete All Points",
-                                                     command=self.delete_all_points_event,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="",
-                                                     command=dummy_func,
-                                                     pass_coords=False)
-
-        self.map_widget.add_right_click_menu_command(label="Send WP Mission",
-                                                     command=write_waypoints,
-                                                     pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="Add Point", command=self.add_waypoint_event, pass_coords=True)
+        self.map_widget.add_right_click_menu_command(label="", command=dummy_func, pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="Add WP to Home", command=self.add_waypoint_to_home_event, pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="", command=dummy_func, pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="Delete Point", command=self.delete_waypoint_event, pass_coords=True)
+        self.map_widget.add_right_click_menu_command(label="", command=dummy_func, pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="Delete All Points", command=self.delete_all_points_event, pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="", command=dummy_func, pass_coords=False)
+        self.map_widget.add_right_click_menu_command(label="Send WP Mission", command=write_waypoints, pass_coords=False)
 
         self.waypoint_path = self.map_widget.set_path([(0, 0), (0, 0)], color="red", width=5)
-        self.field_polygon_1 = self.map_widget.set_polygon([(0.0, 0.0)],
-                                                           fill_color=None,
+        self.field_polygon_1 = self.map_widget.set_polygon([(0.0, 0.0)], fill_color=None,
                                                            # outline_color="red",
                                                            # border_width=12,
                                                            # command=self.field_clicked_event,
@@ -206,15 +123,19 @@ class MainWindow:
         self.drone_path = self.map_widget.set_path([(0, 0), (0, 0)], color="lime green", width=5)
 
         self.drone_location_marker = self.map_widget.set_marker(0, 0, text="0.0m", text_color="gray1",
-                                                                icon=self.drone_0_deg_img,
-                                                                font=("Arial", 20, "bold"))
+                                                                icon=self.drone_images_degree_list[0],
+                                                                font=self.font3)
+
+        self.cog_direction_marker = self.map_widget.set_marker(0, 0, icon=self.cog_direction_images_degree_list[0])
+        self.target_direction_marker = self.map_widget.set_marker(0, 0, icon=self.target_direction_images_degree_list[1])
 
         self.drone_origin_marker = self.map_widget.set_marker(0, 0, text="", text_color="gray1",
                                                               icon=self.drone_origin_img, icon_anchor="s",
-                                                              font=("Arial", 20, "bold"))
+                                                              font=self.font3)
+
         self.target_location_marker = self.map_widget.set_marker(0, 0, text="", text_color="gray1",
                                                                  icon=self.target_location_img, icon_anchor="n",
-                                                                 font=("Arial", 20, "bold"))
+                                                                 font=self.font3)
 
         self.map_request_wp_button = ctk.CTkButton(master=self.map_frame, width=24, height=24, corner_radius=0,
                                                    fg_color="#333333", text="", hover_color="#7f7f7f",
@@ -253,27 +174,27 @@ class MainWindow:
         self.wp_field_mode_tabview.add("WP Mode")  # add tab at the end
         self.wp_field_mode_tabview.add("Field Mode")  # add tab at the end
         self.wp_field_mode_tabview.set("WP Mode")  # set currently visible tab
+        self.wp_field_mode_tabview.segmented_button.configure(font=("Ezarion", 13, "bold"))
 
         #                                               FIELD MODE ELEMENTS
 
         self.create_mission_for_field_invert_checkbox_variable = ctk.StringVar(value="off")
         self.create_mission_for_field_invert_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("Field Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
-                                                     text="Invert", font=("Arial", 11, "bold"), command=self.create_mission_for_field_invert_checkbox_event,
-                                                     onvalue="on", offvalue="off", variable=self.create_mission_for_field_invert_checkbox_variable)
+                                                                        text="Invert", font=("Arial", 11, "bold"), command=self.create_mission_for_field_invert_checkbox_event,
+                                                                        onvalue="on", offvalue="off", variable=self.create_mission_for_field_invert_checkbox_variable)
 
         self.create_mission_for_field_invert_checkbox.place(relx=0.95, rely=0.74, anchor=tkinter.CENTER)
 
         self.create_mission_for_field_reverse_checkbox_variable = ctk.StringVar(value="off")
-        self.create_mission_for_field_reverse_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("Field Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
-                                                     text="Reverse", font=("Arial", 11, "bold"), command=self.create_mission_for_field_reverse_checkbox_event,
-                                                     onvalue="on", offvalue="off", variable=self.create_mission_for_field_reverse_checkbox_variable)
+        self.create_mission_for_field_reverse_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("Field Mode"), checkbox_width=20, checkbox_height=20,
+                                                                         corner_radius=5,
+                                                                         text="Reverse", font=("Ezarion", 11, "bold"), command=self.create_mission_for_field_reverse_checkbox_event,
+                                                                         onvalue="on", offvalue="off", variable=self.create_mission_for_field_reverse_checkbox_variable)
 
         self.create_mission_for_field_reverse_checkbox.place(relx=0.95, rely=0.26, anchor=tkinter.CENTER)
 
-
-
         self.create_mission_for_field_button = ctk.CTkButton(master=self.wp_field_mode_tabview.tab("Field Mode"), width=30, height=25, corner_radius=10, text="Create",
-                                                             command=self.create_mission_for_field_function)
+                                                             command=self.create_mission_for_field_function, font=("Ezarion", 12, "bold"))
         self.create_mission_for_field_button.place(relx=0.72, rely=0.7, anchor=tkinter.CENTER)
 
         self.create_mission_for_field_angle_slider = ctk.CTkSlider(master=self.wp_field_mode_tabview.tab("Field Mode"),
@@ -282,15 +203,12 @@ class MainWindow:
                                                                    width=140, height=15, number_of_steps=60)
         self.create_mission_for_field_angle_slider.place(relx=0.3, rely=0.2, anchor=tkinter.CENTER)
 
-
-
         self.create_mission_for_field_spacing_slider = ctk.CTkSlider(master=self.wp_field_mode_tabview.tab("Field Mode"),
                                                                      from_=1, to=10,
                                                                      command=self.create_mission_for_field_spacing_slider_event,
                                                                      width=140, height=15, number_of_steps=18)
         self.create_mission_for_field_spacing_slider.place(relx=0.3, rely=0.75, anchor=tkinter.CENTER)
         self.create_mission_for_field_spacing_slider.set(0)
-
 
         self.create_mission_for_field_padding_slider = ctk.CTkSlider(master=self.wp_field_mode_tabview.tab("Field Mode"),
                                                                      from_=0, to=10,
@@ -299,54 +217,48 @@ class MainWindow:
         self.create_mission_for_field_padding_slider.place(relx=0.64, rely=0.2, anchor=tkinter.CENTER)
         self.create_mission_for_field_padding_slider.set(0)
 
-
-
         self.create_mission_for_field_angle_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("Field Mode"),
-                                                                 width=20, height=20, font=("Arial", 12, "bold"), text="Agl: 0")
+                                                                 width=20, height=20, font=("Ezarion", 12, "bold"), text="Agl: 0")
         self.create_mission_for_field_angle_label.place(relx=0.06, rely=0.2, anchor=tkinter.CENTER)
 
-
         self.create_mission_for_field_spacing_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("Field Mode"),
-                                                                   width=20, height=20, font=("Arial", 12, "bold"), text="Spc: 0.0")
+                                                                   width=20, height=20, font=("Ezarion", 12, "bold"), text="Spc: 0.0")
         self.create_mission_for_field_spacing_label.place(relx=0.06, rely=0.75, anchor=tkinter.CENTER)
 
         self.create_mission_for_field_padding_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("Field Mode"),
-                                                                   width=20, height=20, font=("Arial", 12, "bold"), text="Pad: 0.0")
+                                                                   width=20, height=20, font=("Ezarion", 12, "bold"), text="Pad: 0.0")
         self.create_mission_for_field_padding_label.place(relx=0.56, rely=0.75, anchor=tkinter.CENTER)
 
         #                                               WP MODE ELEMENTS
 
-
-
         self.save_mission_button = ctk.CTkButton(master=self.wp_field_mode_tabview.tab("WP Mode"), width=35, height=18, corner_radius=10, text="Save",
-                                                 command=self.save_mission_function)
+                                                 command=self.save_mission_function, font=("Ezarion", 12, "bold"))
         self.save_mission_button.place(relx=0.1, rely=0.28, anchor=tkinter.CENTER)
 
         self.load_mission_button = ctk.CTkButton(master=self.wp_field_mode_tabview.tab("WP Mode"), width=35, height=18, corner_radius=10, text="Load",
-                                                 command=self.load_mission_function)
+                                                 command=self.load_mission_function, font=("Ezarion", 12, "bold"))
         self.load_mission_button.place(relx=0.1, rely=0.72, anchor=tkinter.CENTER)
 
-
         self.wp_altitude_input = ctk.CTkEntry(master=self.wp_field_mode_tabview.tab("WP Mode"), width=70, height=40, corner_radius=5,
-                                              placeholder_text="WP Alt", font=("Arial", 13, "bold"))
+                                              placeholder_text="WP Alt", font=("Ezarion", 13, "bold"))
 
         self.wp_altitude_input.place(relx=0.3, rely=0.5, anchor=tkinter.CENTER)
 
         self.wp_distance_label = ctk.CTkLabel(master=self.wp_field_mode_tabview.tab("WP Mode"), width=70, height=40, corner_radius=5,
-                                              text="Distance:\n0.0m", font=("Arial", 13, "bold"), fg_color="#292929")
+                                              text="Distance:\n0.0m", font=("Ezarion", 13, "bold"), fg_color="#292929")
 
         self.wp_distance_label.place(relx=0.53, rely=0.5, anchor=tkinter.CENTER)
 
         self.rth_after_wp_checkbox_variable = ctk.StringVar(value="off")
         self.rth_after_wp_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("WP Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
-                                                     text="RTH after Mission", font=("Arial", 11, "bold"), command=self.rth_after_wp_checkbox_event,
+                                                     text="RTH after Mission", font=("Ezarion", 11, "bold"), command=self.rth_after_wp_checkbox_event,
                                                      onvalue="on", offvalue="off", variable=self.rth_after_wp_checkbox_variable)
 
         self.rth_after_wp_checkbox.place(relx=0.82, rely=0.28, anchor=tkinter.CENTER)
 
         self.land_after_wp_checkbox_variable = ctk.StringVar(value="off")
         self.land_after_wp_checkbox = ctk.CTkCheckBox(master=self.wp_field_mode_tabview.tab("WP Mode"), checkbox_width=20, checkbox_height=20, corner_radius=5,
-                                                      text="Lnd after Mission", font=("Arial", 11, "bold"), command=self.land_after_wp_checkbox_event,
+                                                      text="Lnd after Mission", font=("Ezarion", 11, "bold"), command=self.land_after_wp_checkbox_event,
                                                       onvalue="on", offvalue="off", variable=self.land_after_wp_checkbox_variable, state="disabled")
 
         self.land_after_wp_checkbox.place(relx=0.82, rely=0.72, anchor=tkinter.CENTER)
@@ -403,28 +315,27 @@ class MainWindow:
         self.save_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                          text_color="black", fg_color="#dcdde1", text="Save",
                                          command=save_on_click,
-                                         font=("Arial", 14, "bold"))
+                                         font=("Ezarion", 14, "bold"))
 
         self.save_button.place(relx=0.49, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_mag_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Mag Cal",
-                                                  command=self.calibrate_mag_event, font=("Arial", 14, "bold"))
+                                                  command=self.calibrate_mag_event, font=("Ezarion", 14, "bold"))
 
         self.calibrate_mag_button.place(relx=0.62, rely=0.5, anchor=tkinter.CENTER)
 
         self.calibrate_acc_button = ctk.CTkButton(master=self.arm_utility_frame, width=110, height=40, corner_radius=5,
                                                   text_color="black", fg_color="#dcdde1", text="Start Acc Cal",
-                                                  command=self.calibrate_acc_event, font=("Arial", 14, "bold"))
+                                                  command=self.calibrate_acc_event, font=("Ezarion", 14, "bold"))
 
         self.calibrate_acc_button.place(relx=0.78, rely=0.5, anchor=tkinter.CENTER)
 
         self.motor_test_button = ctk.CTkButton(master=self.arm_utility_frame, width=65, height=40, corner_radius=5,
-                                               text_color="black", fg_color="#dcdde1", font=("Arial", 14, "bold"),
+                                               text_color="black", fg_color="#dcdde1", font=("Ezarion", 14, "bold"),
                                                text="Motor Test",
                                                command=motor_test_ui.show_motor_test_window)
         self.motor_test_button.place(relx=0.92, rely=0.5, anchor=tkinter.CENTER)
-
 
         # DATA FRAME  /*********************************************************************************/
         self.data_frame = ctk.CTkFrame(master=self.root, width=290, height=1060,
@@ -438,55 +349,55 @@ class MainWindow:
         self.gyroscope_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                             corner_radius=10, fg_color="gray35",
                                             text="Gyroscope (dps)",
-                                            font=("Arial", 16, "bold"))
+                                            font=self.font)
         self.gyroscope_label.place(relx=0.5, rely=0.12, anchor=tkinter.CENTER)
 
         self.gyro_x_data_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                               corner_radius=10,
                                               text="X: 100.0",
-                                              font=("Arial", 16, "bold"))
+                                              font=self.font)
         self.gyro_x_data_label.place(relx=0.2, rely=0.3, anchor=tkinter.CENTER)
 
         self.gyro_y_data_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                               corner_radius=10,
                                               text="Y: 100.0",
-                                              font=("Arial", 16, "bold"))
+                                              font=self.font)
         self.gyro_y_data_label.place(relx=0.50, rely=0.3, anchor=tkinter.CENTER)
 
         self.gyro_z_data_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                               corner_radius=10,
                                               text="Z: 100.0",
-                                              font=("Arial", 16, "bold"))
+                                              font=self.font)
         self.gyro_z_data_label.place(relx=0.8, rely=0.3, anchor=tkinter.CENTER)
 
         self.accelerometer_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                                 corner_radius=10, fg_color="gray35",
                                                 text="Accelerometer (m/s²)",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.accelerometer_label.place(relx=0.5, rely=0.52, anchor=tkinter.CENTER)
 
         self.accel_x_data_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="X: 100.0",
-                                               font=("Arial", 16, "bold"))
+                                               font=self.font)
         self.accel_x_data_label.place(relx=0.2, rely=0.7, anchor=tkinter.CENTER)
 
         self.accel_y_data_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="Y: 100.0",
-                                               font=("Arial", 16, "bold"))
+                                               font=self.font)
         self.accel_y_data_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
         self.accel_z_data_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="Z: 100.0",
-                                               font=("Arial", 16, "bold"))
+                                               font=self.font)
         self.accel_z_data_label.place(relx=0.8, rely=0.7, anchor=tkinter.CENTER)
 
         self.imu_core_temp_label = ctk.CTkLabel(master=self.imu_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="IMU core temp: 25.5 °C",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.imu_core_temp_label.place(relx=0.5, rely=0.9, anchor=tkinter.CENTER)
 
         # DATA FRAME 2  ////////////////////////////////////////////////////////////////////////////////////////
@@ -496,25 +407,25 @@ class MainWindow:
         self.magnetometer_label = ctk.CTkLabel(master=self.magnetometer_frame, width=100, height=25,
                                                corner_radius=10, fg_color="gray35",
                                                text="Magnetometer",
-                                               font=("Arial", 16, "bold"))
+                                               font=self.font)
         self.magnetometer_label.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
 
         self.mag_x_data_label = ctk.CTkLabel(master=self.magnetometer_frame, width=100, height=25,
                                              corner_radius=10,
                                              text="X: 100.0",
-                                             font=("Arial", 16, "bold"))
+                                             font=self.font)
         self.mag_x_data_label.place(relx=0.2, rely=0.70, anchor=tkinter.CENTER)
 
         self.mag_y_data_label = ctk.CTkLabel(master=self.magnetometer_frame, width=100, height=25,
                                              corner_radius=10,
                                              text="Y: 100.0",
-                                             font=("Arial", 16, "bold"))
+                                             font=self.font)
         self.mag_y_data_label.place(relx=0.5, rely=0.70, anchor=tkinter.CENTER)
 
         self.mag_z_data_label = ctk.CTkLabel(master=self.magnetometer_frame, width=100, height=25,
                                              corner_radius=10,
                                              text="Z: 100.0",
-                                             font=("Arial", 16, "bold"))
+                                             font=self.font)
         self.mag_z_data_label.place(relx=0.8, rely=0.70, anchor=tkinter.CENTER)
 
         # DATA FRAME 3  /////////////////////////////////////////////////////////////////////////////////////
@@ -524,76 +435,80 @@ class MainWindow:
         self.barometer_label = ctk.CTkLabel(master=self.barometer_frame, width=100, height=25,
                                             corner_radius=10, fg_color="gray35",
                                             text="Barometer",
-                                            font=("Arial", 16, "bold"))
+                                            font=self.font)
         self.barometer_label.place(relx=0.5, rely=0.15, anchor=tkinter.CENTER)
 
         self.pressure_data_label = ctk.CTkLabel(master=self.barometer_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="Pressure:             1010.5 hPa",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.pressure_data_label.place(relx=0.5, rely=0.38, anchor=tkinter.CENTER)
 
         self.temp_data_label = ctk.CTkLabel(master=self.barometer_frame, width=100, height=25,
                                             corner_radius=10,
                                             text="Temperature:       25.5 °C",
-                                            font=("Arial", 16, "bold"))
+                                            font=self.font)
         self.temp_data_label.place(relx=0.45, rely=0.61, anchor=tkinter.CENTER)
 
         self.altitude_data_label = ctk.CTkLabel(master=self.barometer_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="Altitude:                 1.5 m",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.altitude_data_label.place(relx=0.43, rely=0.84, anchor=tkinter.CENTER)
 
         # DATA FRAME 4 ////////////////////////////////////////////////////////////////////////////////////////
-        self.tof_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=100, corner_radius=10)
-        self.tof_frame.place(relx=0.5, rely=0.46, anchor=tkinter.CENTER)
+        self.tof_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=80, corner_radius=10)
+        self.tof_frame.place(relx=0.5, rely=0.45, anchor=tkinter.CENTER)
 
         self.tof_label = ctk.CTkLabel(master=self.tof_frame, width=100, height=25,
                                       corner_radius=10, fg_color="gray35",
                                       text="Range Finder (cm)",
-                                      font=("Arial", 16, "bold"))
-        self.tof_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+                                      font=self.font)
+        self.tof_label.place(relx=0.5, rely=0.25, anchor=tkinter.CENTER)
 
-        self.tof_1_data_label = ctk.CTkLabel(master=self.tof_frame, width=100, height=25,
-                                             corner_radius=10,
-                                             text="Range 1: 120.0",
-                                             font=("Arial", 16, "bold"))
-        self.tof_1_data_label.place(relx=0.5, rely=0.52, anchor=tkinter.CENTER)
-
-        self.tof_2_data_label = ctk.CTkLabel(master=self.tof_frame, width=100, height=25,
-                                             corner_radius=10,
-                                             text="Range 2: 120.0",
-                                             font=("Arial", 16, "bold"))
-        self.tof_2_data_label.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
+        self.tof_range_label = ctk.CTkLabel(master=self.tof_frame, width=100, height=25,
+                                            corner_radius=10,
+                                            text="Range: 120.0",
+                                            font=self.font)
+        self.tof_range_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
         # DATA FRAME 5 ////////////////////////////////////////////////////////////////////////////////
-        self.flow_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=120, corner_radius=10)
-        self.flow_frame.place(relx=0.5, rely=0.575, anchor=tkinter.CENTER)
+        self.flow_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=80, corner_radius=10)
+        self.flow_frame.place(relx=0.5, rely=0.537, anchor=tkinter.CENTER)
 
         self.flow_label = ctk.CTkLabel(master=self.flow_frame, width=100, height=25,
                                        corner_radius=10, fg_color="gray35",
-                                       text="Flow (cm/s)",
-                                       font=("Arial", 16, "bold"))
-        self.flow_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
+                                       text="Optical Flow (cm/s)",
+                                       font=self.font)
+        self.flow_label.place(relx=0.5, rely=0.25, anchor=tkinter.CENTER)
 
         self.flow_x_vel_data_label = ctk.CTkLabel(master=self.flow_frame, width=100, height=25,
                                                   corner_radius=10,
                                                   text="X: 0.00",
-                                                  font=("Arial", 16, "bold"))
-        self.flow_x_vel_data_label.place(relx=0.3, rely=0.52, anchor=tkinter.CENTER)
+                                                  font=self.font)
+        self.flow_x_vel_data_label.place(relx=0.2, rely=0.7, anchor=tkinter.CENTER)
 
         self.flow_y_vel_data_label = ctk.CTkLabel(master=self.flow_frame, width=100, height=25,
                                                   corner_radius=10,
                                                   text="Y: 0.00",
-                                                  font=("Arial", 16, "bold"))
-        self.flow_y_vel_data_label.place(relx=0.7, rely=0.52, anchor=tkinter.CENTER)
+                                                  font=self.font)
+        self.flow_y_vel_data_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
         self.flow_quality_data_label = ctk.CTkLabel(master=self.flow_frame, width=100, height=25,
                                                     corner_radius=10,
-                                                    text="Quality: 100",
-                                                    font=("Arial", 16, "bold"))
-        self.flow_quality_data_label.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
+                                                    text="Q: 100",
+                                                    font=self.font)
+        self.flow_quality_data_label.place(relx=0.8, rely=0.7, anchor=tkinter.CENTER)
+
+        # DATA FRAME 5 - THROTTLE ////////////////////////////////////////////////////////////////////
+        self.throttle_frame = ctk.CTkFrame(master=self.data_frame, width=270, height=50, corner_radius=10)
+        self.throttle_frame.place(relx=0.5, rely=0.61, anchor=tkinter.CENTER)
+
+        self.throttle_label = ctk.CTkLabel(master=self.throttle_frame, width=100, height=25,
+                                           corner_radius=10,
+                                           text="Throttle: 0",
+                                           font=self.font)
+        self.throttle_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
         # DATA FRAME 6 ////////////////////////////////////////////////////////////////////////////////
         self.gps_outer_frame = ctk.CTkFrame(master=self.data_frame, width=290, height=375, corner_radius=20,
@@ -606,85 +521,85 @@ class MainWindow:
         self.gps_label = ctk.CTkLabel(master=self.gps_frame, width=80, height=25,
                                       corner_radius=10, fg_color="gray35",
                                       text="GNSS",
-                                      font=("Arial", 16, "bold"))
+                                      font=self.font)
         self.gps_label.place(relx=0.5, rely=0.07, anchor=tkinter.CENTER)
 
         self.latitude_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="Latitude:     00.0000000",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.latitude_data_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
 
         self.longitude_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                  corner_radius=10,
                                                  text="Longitude:    00.0000000",
-                                                 font=("Arial", 16, "bold"))
+                                                 font=self.font)
         self.longitude_data_label.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
 
         self.latitude_origin_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                        corner_radius=10,
                                                        text="H.Latitude:     00.0000000",
-                                                       font=("Arial", 16, "bold"))
+                                                       font=self.font)
         self.latitude_origin_data_label.place(relx=0.5, rely=0.4, anchor=tkinter.CENTER)
 
         self.longitude_origin_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                         corner_radius=10,
                                                         text="H.Longitude:    00.0000000",
-                                                        font=("Arial", 16, "bold"))
+                                                        font=self.font)
         self.longitude_origin_data_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
         self.north_vel_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                  corner_radius=10,
                                                  text="Vel N: 0",
-                                                 font=("Arial", 16, "bold"))
+                                                 font=self.font)
         self.north_vel_data_label.place(relx=0.18, rely=0.6, anchor=tkinter.CENTER)
 
         self.east_vel_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="E: 0",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.east_vel_data_label.place(relx=0.5, rely=0.6, anchor=tkinter.CENTER)
 
         self.down_vel_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="D: 0",
-                                                font=("Arial", 16, "bold"))
+                                                font=self.font)
         self.down_vel_data_label.place(relx=0.82, rely=0.6, anchor=tkinter.CENTER)
 
         self.gps_alt_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="Altitude: 0",
-                                               font=("Arial", 16, "bold"))
+                                               font=self.font)
         self.gps_alt_data_label.place(relx=0.3, rely=0.7, anchor=tkinter.CENTER)
 
         self.head_motion_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                    corner_radius=10,
                                                    text="HoM: 0",
-                                                   font=("Arial", 16, "bold"))
+                                                   font=self.font)
         self.head_motion_data_label.place(relx=0.7, rely=0.7, anchor=tkinter.CENTER)
 
         self.gps_fix_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="Fix: 0",
-                                               font=("Arial", 16, "bold"))
+                                               font=self.font)
         self.gps_fix_data_label.place(relx=0.3, rely=0.8, anchor=tkinter.CENTER)
 
         self.gps_sat_count_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                                      corner_radius=10,
                                                      text="Sats: 0",
-                                                     font=("Arial", 16, "bold"))
+                                                     font=self.font)
         self.gps_sat_count_data_label.place(relx=0.7, rely=0.8, anchor=tkinter.CENTER)
 
         self.hdop_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                             corner_radius=10,
                                             text="HDoP: 0",
-                                            font=("Arial", 16, "bold"))
+                                            font=self.font)
         self.hdop_data_label.place(relx=0.3, rely=0.9, anchor=tkinter.CENTER)
 
         self.vdop_data_label = ctk.CTkLabel(master=self.gps_frame, width=100, height=25,
                                             corner_radius=10,
                                             text="VDoP: 0",
-                                            font=("Arial", 16, "bold"))
+                                            font=self.font)
         self.vdop_data_label.place(relx=0.7, rely=0.9, anchor=tkinter.CENTER)
 
         # Bottom Frame  /******************************************************************************/
@@ -700,19 +615,19 @@ class MainWindow:
         self.battery_volt_label = ctk.CTkLabel(master=self.utility_1_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="Battery: 4.2V",
-                                               font=("Arial", 18, "bold"))
+                                               font=self.font2)
         self.battery_volt_label.place(relx=0.5, rely=0.2, anchor=tkinter.CENTER)
 
         self.rssi_label = ctk.CTkLabel(master=self.utility_1_frame, width=100, height=25,
-                                               corner_radius=10,
-                                               text="RSSI: -20 dBm",
-                                               font=("Arial", 18, "bold"))
+                                       corner_radius=10,
+                                       text="RSSI: -20 dBm",
+                                       font=self.font2)
         self.rssi_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
         self.packet_drop_ratio_label = ctk.CTkLabel(master=self.utility_1_frame, width=100, height=25,
-                                               corner_radius=10,
-                                               text="PDR: 0%",
-                                               font=("Arial", 18, "bold"))
+                                                    corner_radius=10,
+                                                    text="PDR: 0%",
+                                                    font=self.font2)
         self.packet_drop_ratio_label.place(relx=0.5, rely=0.8, anchor=tkinter.CENTER)
 
         # Utility Frame 2 //////////////////////////////////////////////////////////////////////////////
@@ -723,37 +638,37 @@ class MainWindow:
         self.attitude_pitch_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
                                                  corner_radius=10,
                                                  text="Att  θ: 12.21",
-                                                 font=("Arial", 18, "bold"))
+                                                 font=self.font2)
         self.attitude_pitch_label.place(relx=0.2, rely=0.24, anchor=tkinter.CENTER)
 
         self.attitude_roll_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
                                                 corner_radius=10,
                                                 text="φ: -12.61",
-                                                font=("Arial", 18, "bold"))
+                                                font=self.font2)
         self.attitude_roll_label.place(relx=0.5, rely=0.24, anchor=tkinter.CENTER)
 
         self.attitude_heading_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
                                                    corner_radius=10,
                                                    text="ψ: 112.60",
-                                                   font=("Arial", 18, "bold"))
+                                                   font=self.font2)
         self.attitude_heading_label.place(relx=0.8, rely=0.24, anchor=tkinter.CENTER)
 
         self.target_attitude_pitch_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
                                                         corner_radius=10,
                                                         text="T.Att  θ: 12.21",
-                                                        font=("Arial", 18, "bold"))
+                                                        font=self.font2)
         self.target_attitude_pitch_label.place(relx=0.18, rely=0.55, anchor=tkinter.CENTER)
 
         self.target_attitude_roll_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
                                                        corner_radius=10,
                                                        text="φ: -12.61",
-                                                       font=("Arial", 18, "bold"))
+                                                       font=self.font2)
         self.target_attitude_roll_label.place(relx=0.5, rely=0.55, anchor=tkinter.CENTER)
 
         self.target_attitude_heading_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
                                                           corner_radius=10,
                                                           text="ψ: 112.60",
-                                                          font=("Arial", 18, "bold"))
+                                                          font=self.font2)
         self.target_attitude_heading_label.place(relx=0.8, rely=0.55, anchor=tkinter.CENTER)
 
         self.target_dps_label = ctk.CTkLabel(master=self.utility_2_frame, width=100, height=25,
@@ -770,13 +685,13 @@ class MainWindow:
         self.calibrated_altitude_label = ctk.CTkLabel(master=self.utility_3_frame, width=100, height=25,
                                                       corner_radius=10,
                                                       text="Alt: 10.85 m",
-                                                      font=("Arial", 18, "bold"))
+                                                      font=self.font2)
         self.calibrated_altitude_label.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
 
         self.target_altitude_label = ctk.CTkLabel(master=self.utility_3_frame, width=100, height=25,
                                                   corner_radius=10,
                                                   text="T.Alt: 10.85 m",
-                                                  font=("Arial", 18, "bold"))
+                                                  font=self.font2)
         self.target_altitude_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
         # Utility Frame 4 //////////////////////////////////////////////////////////////////////////////
@@ -787,37 +702,37 @@ class MainWindow:
         self.velocity_x_label = ctk.CTkLabel(master=self.utility_4_frame, width=100, height=25,
                                              corner_radius=10,
                                              text="Vel X: 0.6",
-                                             font=("Arial", 18, "bold"))
+                                             font=self.font2)
         self.velocity_x_label.place(relx=0.2, rely=0.3, anchor=tkinter.CENTER)
 
         self.velocity_y_label = ctk.CTkLabel(master=self.utility_4_frame, width=100, height=25,
                                              corner_radius=10,
                                              text="Y: 0.2",
-                                             font=("Arial", 18, "bold"))
+                                             font=self.font2)
         self.velocity_y_label.place(relx=0.5, rely=0.3, anchor=tkinter.CENTER)
 
         self.velocity_z_label = ctk.CTkLabel(master=self.utility_4_frame, width=100, height=25,
                                              corner_radius=10,
                                              text="Z: 0.8",
-                                             font=("Arial", 18, "bold"))
+                                             font=self.font2)
         self.velocity_z_label.place(relx=0.8, rely=0.3, anchor=tkinter.CENTER)
 
         self.target_velocity_x_label = ctk.CTkLabel(master=self.utility_4_frame, width=100, height=25,
                                                     corner_radius=10,
                                                     text="T.Vel X: 0.7",
-                                                    font=("Arial", 18, "bold"))
+                                                    font=self.font2)
         self.target_velocity_x_label.place(relx=0.18, rely=0.7, anchor=tkinter.CENTER)
 
         self.target_velocity_y_label = ctk.CTkLabel(master=self.utility_4_frame, width=100, height=25,
                                                     corner_radius=10,
                                                     text="Y: 0.1",
-                                                    font=("Arial", 18, "bold"))
+                                                    font=self.font2)
         self.target_velocity_y_label.place(relx=0.5, rely=0.7, anchor=tkinter.CENTER)
 
         self.target_velocity_z_label = ctk.CTkLabel(master=self.utility_4_frame, width=100, height=25,
                                                     corner_radius=10,
                                                     text="Z: -0.1",
-                                                    font=("Arial", 18, "bold"))
+                                                    font=self.font2)
         self.target_velocity_z_label.place(relx=0.8, rely=0.7, anchor=tkinter.CENTER)
 
         # Utility Frame 5 //////////////////////////////////////////////////////////////////////////////
@@ -829,31 +744,31 @@ class MainWindow:
         self.target_latitude_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                                   corner_radius=10,
                                                   text="T.Lat:  00.0000000",
-                                                  font=("Arial", 18, "bold"))
+                                                  font=self.font2)
         self.target_latitude_label.place(relx=0.25, rely=0.3, anchor=tkinter.CENTER)
 
         self.target_longitude_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                                    corner_radius=10,
                                                    text="T.Lon:  00.0000000",
-                                                   font=("Arial", 18, "bold"))
+                                                   font=self.font2)
         self.target_longitude_label.place(relx=0.75, rely=0.3, anchor=tkinter.CENTER)
 
         self.target_point_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                                corner_radius=10,
                                                text="T.Point: N/A",
-                                               font=("Arial", 18, "bold"))
+                                               font=self.font2)
         self.target_point_label.place(relx=0.2, rely=0.7, anchor=tkinter.CENTER)
 
         self.dist_to_target_2d_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                                     corner_radius=10,
                                                     text="Dist: 10.0",
-                                                    font=("Arial", 18, "bold"))
+                                                    font=self.font2)
         self.dist_to_target_2d_label.place(relx=0.55, rely=0.7, anchor=tkinter.CENTER)
 
         self.vel_2d_label = ctk.CTkLabel(master=self.utility_5_frame, width=100, height=25,
                                          corner_radius=10,
                                          text="Vel: 1.0",
-                                         font=("Arial", 18, "bold"))
+                                         font=self.font2)
         self.vel_2d_label.place(relx=0.8, rely=0.7, anchor=tkinter.CENTER)
 
     def delete_trail_func(self):
@@ -893,8 +808,8 @@ class MainWindow:
         self.temp_data_label.configure(text=f"Temperature:       {telemetry_data_dict['barometer_temperature']:.1f} °C")
         self.altitude_data_label.configure(text=f"Altitude:                 {telemetry_data_dict['altitude']:.1f} m")
 
-        self.tof_1_data_label.configure(text=f"Range 1:      {telemetry_data_dict['tof_distance_1'] * 100.0:.1f}")
-        self.tof_2_data_label.configure(text=f"Range 2:      {telemetry_data_dict['tof_distance_2']:.1f}")
+        self.tof_range_label.configure(text=f"Range:      {telemetry_data_dict['tof_distance'] * 100.0:.1f}")
+        self.throttle_label.configure(text=f"Throttle: {telemetry_data_dict['throttle']:.0f}")
 
         self.battery_volt_label.configure(text=f"Battery: {telemetry_data_dict['battery_voltage']:.1f} V")
         self.rssi_label.configure(text=f"RSSI: {telemetry_data_dict['RSSI']:.0f} dBm")
@@ -926,90 +841,26 @@ class MainWindow:
 
         self.flow_x_vel_data_label.configure(text=f"X: {telemetry_data_dict['flow_x_velocity'] * 100.0:.1f}")
         self.flow_y_vel_data_label.configure(text=f"Y: {telemetry_data_dict['flow_y_velocity'] * 100.0:.1f}")
-        self.flow_quality_data_label.configure(text=f"Quality: {telemetry_data_dict['flow_quality']:.0f}%")
+        self.flow_quality_data_label.configure(text=f"Q: {telemetry_data_dict['flow_quality']:.0f}%")
 
         self.drone_location_marker.set_text(f"{telemetry_data_dict['altitude_calibrated']:.1f}m")
 
-        heading_round_to_10 = round(telemetry_data_dict["heading"], -1)
 
-        if heading_round_to_10 == 0:
-            self.drone_location_marker.change_icon(self.drone_0_deg_img)
-        elif heading_round_to_10 == 10:
-            self.drone_location_marker.change_icon(self.drone_10_deg_img)
-        elif heading_round_to_10 == 20:
-            self.drone_location_marker.change_icon(self.drone_20_deg_img)
-        elif heading_round_to_10 == 30:
-            self.drone_location_marker.change_icon(self.drone_30_deg_img)
-        elif heading_round_to_10 == 40:
-            self.drone_location_marker.change_icon(self.drone_40_deg_img)
-        elif heading_round_to_10 == 50:
-            self.drone_location_marker.change_icon(self.drone_50_deg_img)
-        elif heading_round_to_10 == 60:
-            self.drone_location_marker.change_icon(self.drone_60_deg_img)
-        elif heading_round_to_10 == 70:
-            self.drone_location_marker.change_icon(self.drone_70_deg_img)
-        elif heading_round_to_10 == 80:
-            self.drone_location_marker.change_icon(self.drone_80_deg_img)
-        elif heading_round_to_10 == 90:
-            self.drone_location_marker.change_icon(self.drone_90_deg_img)
-        elif heading_round_to_10 == 100:
-            self.drone_location_marker.change_icon(self.drone_100_deg_img)
-        elif heading_round_to_10 == 110:
-            self.drone_location_marker.change_icon(self.drone_110_deg_img)
-        elif heading_round_to_10 == 120:
-            self.drone_location_marker.change_icon(self.drone_120_deg_img)
-        elif heading_round_to_10 == 130:
-            self.drone_location_marker.change_icon(self.drone_130_deg_img)
-        elif heading_round_to_10 == 140:
-            self.drone_location_marker.change_icon(self.drone_140_deg_img)
-        elif heading_round_to_10 == 150:
-            self.drone_location_marker.change_icon(self.drone_150_deg_img)
-        elif heading_round_to_10 == 160:
-            self.drone_location_marker.change_icon(self.drone_160_deg_img)
-        elif heading_round_to_10 == 170:
-            self.drone_location_marker.change_icon(self.drone_170_deg_img)
-        elif heading_round_to_10 == 180:
-            self.drone_location_marker.change_icon(self.drone_180_deg_img)
-        elif heading_round_to_10 == 190:
-            self.drone_location_marker.change_icon(self.drone_190_deg_img)
-        elif heading_round_to_10 == 200:
-            self.drone_location_marker.change_icon(self.drone_200_deg_img)
-        elif heading_round_to_10 == 210:
-            self.drone_location_marker.change_icon(self.drone_210_deg_img)
-        elif heading_round_to_10 == 220:
-            self.drone_location_marker.change_icon(self.drone_220_deg_img)
-        elif heading_round_to_10 == 230:
-            self.drone_location_marker.change_icon(self.drone_230_deg_img)
-        elif heading_round_to_10 == 240:
-            self.drone_location_marker.change_icon(self.drone_240_deg_img)
-        elif heading_round_to_10 == 250:
-            self.drone_location_marker.change_icon(self.drone_250_deg_img)
-        elif heading_round_to_10 == 260:
-            self.drone_location_marker.change_icon(self.drone_260_deg_img)
-        elif heading_round_to_10 == 270:
-            self.drone_location_marker.change_icon(self.drone_270_deg_img)
-        elif heading_round_to_10 == 280:
-            self.drone_location_marker.change_icon(self.drone_280_deg_img)
-        elif heading_round_to_10 == 290:
-            self.drone_location_marker.change_icon(self.drone_290_deg_img)
-        elif heading_round_to_10 == 300:
-            self.drone_location_marker.change_icon(self.drone_300_deg_img)
-        elif heading_round_to_10 == 310:
-            self.drone_location_marker.change_icon(self.drone_310_deg_img)
-        elif heading_round_to_10 == 320:
-            self.drone_location_marker.change_icon(self.drone_310_deg_img)
-        elif heading_round_to_10 == 330:
-            self.drone_location_marker.change_icon(self.drone_330_deg_img)
-        elif heading_round_to_10 == 340:
-            self.drone_location_marker.change_icon(self.drone_340_deg_img)
-        elif heading_round_to_10 == 350:
-            self.drone_location_marker.change_icon(self.drone_350_deg_img)
+        heading_rounded = int(round(telemetry_data_dict["heading"], -1) / 10.0)
+        if heading_rounded == 36: heading_rounded = 0
+        target_heading_rounded = int(round(telemetry_data_dict["target_heading"], -1) / 10.0)
+        if target_heading_rounded == 36: target_heading_rounded = 0
+        cog_rounded = int(round(telemetry_data_dict["gps_headingOfMotion"], -1) / 10.0)
+        if cog_rounded == 36: cog_rounded = 0
 
-        self.drone_location_marker.set_position(telemetry_data_dict["gps_latitude"],
-                                                telemetry_data_dict["gps_longitude"])
-        if self.map_follow_drone:
-            self.map_widget.set_position(float(telemetry_data_dict["gps_latitude"]),
-                                         float(telemetry_data_dict["gps_longitude"]))
+
+        self.drone_location_marker.change_icon(self.drone_images_degree_list[heading_rounded])
+        self.cog_direction_marker.change_icon(self.cog_direction_images_degree_list[cog_rounded])
+        self.target_direction_marker.change_icon(self.target_direction_images_degree_list[target_heading_rounded])
+
+        self.drone_location_marker.set_position(telemetry_data_dict["gps_latitude"], telemetry_data_dict["gps_longitude"])
+        self.cog_direction_marker.set_position(telemetry_data_dict["gps_latitude"], telemetry_data_dict["gps_longitude"])
+        self.target_direction_marker.set_position(telemetry_data_dict["gps_latitude"], telemetry_data_dict["gps_longitude"])
 
         self.latitude_data_label.configure(text=f"Latitude:            {telemetry_data_dict['gps_latitude']:.7f}")
         self.longitude_data_label.configure(text=f"Longitude:        {telemetry_data_dict['gps_longitude']:.7f}")
@@ -1091,18 +942,20 @@ class MainWindow:
             idx, dist = find_nearest_coordinate((telemetry_data_dict["target_latitude"],
                                                  telemetry_data_dict["target_longitude"]), waypoint_coordinates)
 
-            if dist < 100.0:
-                self.target_point_label.configure(text=f"T.Point: -WP {idx + 1}-")
-            elif get_distance_from_lat_lon(telemetry_data_dict["target_latitude"],
-                                           telemetry_data_dict["target_longitude"],
-                                           telemetry_data_dict["gps_latitude_origin"],
-                                           telemetry_data_dict["gps_longitude_origin"]) < 100.0:
-                self.target_point_label.configure(text=f"T.Point: -Home-")
-            else:
-                self.target_point_label.configure(text=f"T.Point: -Arbitrary-")
+            if idx is not None:
 
-            self.prev_target_latitude = telemetry_data_dict["target_latitude"]
-            self.prev_target_longitude = telemetry_data_dict["target_longitude"]
+                if dist < 100.0:
+                    self.target_point_label.configure(text=f"T.Point: -WP {idx + 1}-")
+                elif get_distance_from_lat_lon(telemetry_data_dict["target_latitude"],
+                                               telemetry_data_dict["target_longitude"],
+                                               telemetry_data_dict["gps_latitude_origin"],
+                                               telemetry_data_dict["gps_longitude_origin"]) < 100.0:
+                    self.target_point_label.configure(text=f"T.Point: -Home-")
+                else:
+                    self.target_point_label.configure(text=f"T.Point: -Arbitrary-")
+
+                self.prev_target_latitude = telemetry_data_dict["target_latitude"]
+                self.prev_target_longitude = telemetry_data_dict["target_longitude"]
 
         if telemetry_data_dict["is_gnss_sanity_check_ok"] != 1:
             self.gps_outer_frame.configure(fg_color="#880808")  # RED
@@ -1125,9 +978,6 @@ class MainWindow:
             self.prev_latitude = telemetry_data_dict["gps_latitude"]
             self.prev_longitude = telemetry_data_dict["gps_longitude"]
 
-
-
-
         if self.is_auto_mission_create_requested:
             if amc.is_auto_mission_planned():
                 print("done.")
@@ -1142,12 +992,11 @@ class MainWindow:
                         alt = a
                 for i in range(len(amc.bas_ve_son_noktalar_latlon)):
 
-                    if i < 25:
+                    if i < waypoint_limit:
                         # waypoint_coordinates.append((all_points[i][0], all_points[i][1]))
                         waypoint_coordinates.append((amc.bas_ve_son_noktalar_latlon[i][0], amc.bas_ve_son_noktalar_latlon[i][1]))
-                        waypoint_counter = 24
+                        waypoint_counter = waypoint_limit - 1
                         waypoint_only_altitudes.append(alt)
-
 
                 self.redraw_waypoint_markers()
 
@@ -1158,8 +1007,6 @@ class MainWindow:
             else:
                 print("waiting...")
 
-
-
     def save_mission_function(self):
 
         file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("Veri Dosyaları", "*.json")])
@@ -1168,7 +1015,6 @@ class MainWindow:
             slm.save_mission(file_path, self.auto_mission_angle, self.auto_mission_spacing, self.auto_mission_padding, self.auto_mission_reverse, self.auto_mission_invert)
         else:
             print("File Save Canceled")
-
 
     def load_mission_function(self):
         global waypoint_coordinates
@@ -1214,14 +1060,13 @@ class MainWindow:
             self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
             self.redraw_wp_distance_markers()
 
-
             for i in range(len(ret["field_points"])):
 
                 if i == 0:
                     field_coordinates.append(ret["field_points"][i])
                     self.field_polygon_1 = self.map_widget.set_polygon(field_coordinates, name="field_polygon_1", fill_color=None)
                 else:
-                    self.field_polygon_1.add_position(ret["field_points"][i][0], ret["field_points"][i][1], index=i+1)
+                    self.field_polygon_1.add_position(ret["field_points"][i][0], ret["field_points"][i][1], index=i + 1)
 
             self.field_polygon_1.draw()
             self.redraw_field_markers()
@@ -1229,14 +1074,12 @@ class MainWindow:
         else:
             print("File Open Canceled")
 
-
-
     def add_waypoint_event(self, coords):
         global waypoint_counter, waypoint_altitude
 
         if self.point_mode == "WP Mode":
 
-            if len(waypoint_coordinates) < 25:
+            if len(waypoint_coordinates) < waypoint_limit:
 
                 if self.wp_altitude_input.get() != "":
                     alt = int(float(self.wp_altitude_input.get()) * 10)
@@ -1248,7 +1091,7 @@ class MainWindow:
                 waypoint_only_altitudes.append(np.uint8(waypoint_altitude))
                 waypoint_markers.append(self.map_widget.set_marker(coords[0], coords[1], icon=self.location_img, icon_anchor="s",
                                                                    text=f"{waypoint_counter + 1}|{waypoint_altitude / 10}",
-                                                                   text_color="white", font=("Arial", 20, "bold")))
+                                                                   text_color="white", font=self.font3))
                 waypoint_counter += 1
                 if waypoint_counter > 1:
                     self.waypoint_path.set_position_list(waypoint_coordinates)
@@ -1257,7 +1100,7 @@ class MainWindow:
                 self.redraw_wp_distance_markers()
 
             else:
-                print("wp >= 25")
+                print("wp >= limit")
 
         elif self.point_mode == "Field Mode":
 
@@ -1274,20 +1117,10 @@ class MainWindow:
 
             self.field_polygon_1.draw()
 
-
-
-
-
-
-
-
-
-
-
     def add_waypoint_to_home_event(self):
         global waypoint_counter, waypoint_altitude, telemetry_data_dict
 
-        if (len(waypoint_coordinates) < 25 and telemetry_data_dict["gps_latitude_origin"] != 0 and
+        if (len(waypoint_coordinates) < waypoint_limit and telemetry_data_dict["gps_latitude_origin"] != 0 and
                 telemetry_data_dict["gps_longitude_origin"] != 0):
 
             if self.wp_altitude_input.get() != "":
@@ -1301,7 +1134,7 @@ class MainWindow:
                                                                telemetry_data_dict["gps_longitude_origin"], icon=self.location_img,
                                                                icon_anchor="s",
                                                                text=f"{waypoint_counter + 1}|{waypoint_altitude / 10}",
-                                                               text_color="white", font=("Arial", 20, "bold")))
+                                                               text_color="white", font=self.font3))
             waypoint_counter += 1
             if waypoint_counter > 1:
                 self.waypoint_path.set_position_list(waypoint_coordinates)
@@ -1309,36 +1142,25 @@ class MainWindow:
             self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
             self.redraw_wp_distance_markers()
         else:
-            print("WP home is zero or wp >= 25")
-
-
-
-
-
-
+            print("WP home is zero or wp >= limit")
 
     def delete_all_points_event(self):
 
         if self.point_mode == "WP Mode":
-            self.clear_waypoints()
+            response = messagebox.askokcancel("WAYPOINTS", "Delete WAYPOINTS?")
+            if response:
+                self.clear_waypoints()
 
         elif self.point_mode == "Field Mode":
+            response = messagebox.askokcancel("FIELD", "Delete FIELD POINTS?")
+            if response:
+                field_coordinates.clear()
 
-            field_coordinates.clear()
+                for item in field_markers:
+                    item.delete()
 
-            for item in field_markers:
-                item.delete()
-
-            field_markers.clear()
-            self.field_polygon_1.delete()
-
-
-
-
-
-
-
-
+                field_markers.clear()
+                self.field_polygon_1.delete()
 
     def clear_waypoints(self):
         global waypoint_counter
@@ -1357,13 +1179,6 @@ class MainWindow:
         self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
         self.redraw_wp_distance_markers()
 
-
-
-
-
-
-
-
     def delete_waypoint_event(self, coords):
         global waypoint_counter
 
@@ -1378,9 +1193,9 @@ class MainWindow:
                 waypoint_markers[index].delete()
                 del waypoint_markers[index]
                 self.redraw_waypoint_markers()
-            total_dist = calculate_wp_distance()
-            self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
-            self.redraw_wp_distance_markers()
+            # total_dist = calculate_wp_distance()
+            # self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+            # self.redraw_wp_distance_markers()
 
         elif self.point_mode == "Field Mode":
 
@@ -1392,14 +1207,6 @@ class MainWindow:
                 self.redraw_field_markers()
                 self.field_polygon_1.draw()
 
-
-
-
-
-
-
-
-
     def redraw_field_markers(self):
 
         for index in field_markers:
@@ -1408,12 +1215,6 @@ class MainWindow:
 
         for index, value in enumerate(field_coordinates):
             field_markers.append(self.map_widget.set_marker(value[0], value[1], icon=self.polygon_edge_img))
-
-
-
-
-
-
 
     def redraw_waypoint_markers(self):
         global waypoint_counter
@@ -1425,8 +1226,12 @@ class MainWindow:
             waypoint_markers.append(self.map_widget.set_marker(value[0], value[1], icon=self.location_img, icon_anchor="s",
                                                                text=f"{index + 1}|{waypoint_only_altitudes[index] / 10}",
                                                                text_color="white",
-                                                               font=("Arial", 20, "bold")))
+                                                               font=self.font3))
             waypoint_counter = index + 1
+
+        total_dist = calculate_wp_distance()
+        self.wp_distance_label.configure(text=f"Distance:\n{total_dist:.1f}m")
+        self.redraw_wp_distance_markers()
 
         if len(waypoint_coordinates) < 2:
             self.waypoint_path.set_position_list([(0.0, 0.0), (0.0, 0.0)])
@@ -1446,12 +1251,6 @@ class MainWindow:
             self.land_after_wp_checkbox.configure(state="normal")
             self.rth_after_wp_checkbox.select()
 
-
-
-
-
-
-
     def redraw_wp_distance_markers(self):
 
         for item in wp_distance_markers:
@@ -1463,12 +1262,7 @@ class MainWindow:
             for index, item in enumerate(wp_distance_marker_coordinates):
                 wp_distance_markers.append(self.map_widget.set_marker(item[0], item[1], icon=self.dist_empty_img, icon_anchor="n",
                                                                       text=f"{distance_between_wp_coordinates_list[index]:.1f}",
-                                                                      text_color="white", font=("Arial", 15, "bold")))
-
-
-
-
-
+                                                                      text_color="white", font=("Ezarion", 11, "bold")))
 
     def create_mission_for_field_angle_slider_event(self, value):
         self.auto_mission_angle = self.create_mission_for_field_angle_slider.get()
@@ -1477,7 +1271,6 @@ class MainWindow:
     def create_mission_for_field_padding_slider_event(self, value):
         self.auto_mission_padding = self.create_mission_for_field_padding_slider.get()
         self.create_mission_for_field_padding_label.configure(text=f"Pad: {self.auto_mission_padding:.1f}")
-
 
     def create_mission_for_field_spacing_slider_event(self, value):
         self.auto_mission_spacing = self.create_mission_for_field_spacing_slider.get()
@@ -1490,7 +1283,6 @@ class MainWindow:
         else:
             self.auto_mission_invert = 1
 
-
     def create_mission_for_field_reverse_checkbox_event(self):
         value = self.create_mission_for_field_reverse_checkbox_variable.get()
         if value == "off":
@@ -1498,15 +1290,14 @@ class MainWindow:
         else:
             self.auto_mission_reverse = 1
 
-
     def create_mission_for_field_function(self):
         global waypoint_counter
-
 
         if len(field_coordinates) > 2:
 
             self.clear_waypoints()
-            amc.request_create_mission_from_point_list(field_coordinates, self.auto_mission_spacing, self.auto_mission_angle+5, self.auto_mission_padding, self.auto_mission_invert)
+            amc.request_create_mission_from_point_list(field_coordinates, self.auto_mission_spacing, self.auto_mission_angle + 5, self.auto_mission_padding,
+                                                       self.auto_mission_invert)
             self.is_auto_mission_create_requested = 1
             alt = 0
             # if no telemetry, feel free to block the main loop
@@ -1529,10 +1320,10 @@ class MainWindow:
 
                         for i in range(len(amc.bas_ve_son_noktalar_latlon)):
 
-                            if i < 25:
+                            if i < waypoint_limit:
                                 # waypoint_coordinates.append((all_points[i][0], all_points[i][1]))
                                 waypoint_coordinates.append((amc.bas_ve_son_noktalar_latlon[i][0], amc.bas_ve_son_noktalar_latlon[i][1]))
-                                waypoint_counter = 24
+                                waypoint_counter = waypoint_limit - 1
                                 waypoint_only_altitudes.append(alt)
 
                         self.redraw_waypoint_markers()
@@ -1669,7 +1460,6 @@ class MainWindow:
     def wp_field_mode_selection(self):
         self.point_mode = self.wp_field_mode_tabview.get()
 
-
     def close_application(self):
         self.isAppAlive = False
         self.root.destroy()
@@ -1678,7 +1468,7 @@ class MainWindow:
 
 def find_nearest_coordinate(target_coord, coord_list):
     if not coord_list:
-        return None  # Koordinat listesi boşsa None döndür
+        return None, None  # Koordinat listesi boşsa None döndür
 
     # Başlangıçta en küçük mesafeyi sonsuz olarak ayarlayın
     min_distance = float('inf')

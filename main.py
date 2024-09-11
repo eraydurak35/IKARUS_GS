@@ -27,7 +27,7 @@ def thread1():
         elif ret == 3:
             motor_test_ui.show_motor_test_window()
 
-        if counter > 1:
+        if counter > 2:
             counter = 0
             ui_main.update_telemetry_ui()
     quit()

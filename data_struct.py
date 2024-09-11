@@ -1,14 +1,14 @@
 telemetry_data_dict = {
     "RSSI": 0.0,
-    "packet_drop_ratio": 0.0,
+    "packet_drop_ratio": 100,
     "battery_voltage": 0.0,
     "pitch": 0.0,
     "roll": 0.0,
     "heading": 0.0,
     "altitude": 0.0,
     "altitude_calibrated": 0.0,
-    "tof_distance_1": 0.0,
-    "tof_distance_2": 0.0,
+    "tof_distance": 0.0,
+    "throttle": 0.0,
     "velocity_x_ms": 0.0,
     "velocity_y_ms": 0.0,
     "velocity_z_ms": 0.0,
@@ -70,8 +70,8 @@ telemetry_format_dict = {
     "heading": "f",
     "altitude": "h",
     "altitude_calibrated": "h",
-    "tof_distance_1": "h",
-    "tof_distance_2": "h",
+    "tof_distance": "h",
+    "throttle": "h",
     "velocity_x_ms": "h",
     "velocity_y_ms": "h",
     "velocity_z_ms": "h",
@@ -133,8 +133,8 @@ telemetry_scale_dict = {
     "heading": 1,
     "altitude": 100.0,
     "altitude_calibrated": 100,
-    "tof_distance_1": 100.0,
-    "tof_distance_2": 1.0,
+    "tof_distance": 100.0,
+    "throttle": 1.0,
     "velocity_x_ms": 1000.0,
     "velocity_y_ms": 1000.0,
     "velocity_z_ms": 1000.0,
@@ -265,3 +265,4 @@ motor_test_results = [0.0, 0.0, 0.0, 0.0]
 total_wp_distance = 0
 distance_between_wp_coordinates_list = []
 drone_path_coordinates = []
+waypoint_limit = 50
