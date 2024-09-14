@@ -273,15 +273,15 @@ def show_config_window():
                     takeoff_altitude_label.configure(text=takeoff_altitude_entry.get())
                     takeoff_altitude_entry.delete(0, END)
 
-            if v_drop_compensation_gain_entry.get() != "" and not is_error_found:
+            if lpf_cutoff_hz_entry.get() != "" and not is_error_found:
                 try:
-                    config_data_dict["v_drop_compensation_gain"] = float(v_drop_compensation_gain_entry.get())
+                    config_data_dict["lpf_cutoff_hz"] = float(lpf_cutoff_hz_entry.get())
                 except ValueError:
                     messagebox.showinfo("ValueError", "Entry is not a number!!")
                     is_error_found = True
                 else:
-                    v_drop_compensation_gain_label.configure(text=v_drop_compensation_gain_entry.get())
-                    v_drop_compensation_gain_entry.delete(0, END)
+                    lpf_cutoff_hz_label.configure(text=lpf_cutoff_hz_entry.get())
+                    lpf_cutoff_hz_entry.delete(0, END)
 
             if mag_declination_entry.get() != "" and not is_error_found:
                 try:
@@ -573,13 +573,13 @@ def show_config_window():
                                          font=font1)
     mag_declination_label.place(relx=0.26, rely=0.81, anchor=tkinter.CENTER)
 
-    v_drop_compensation_gain_entry = ctk.CTkEntry(master=frame1, width=120, height=35, corner_radius=10,
-                                                  placeholder_text="Batt Comp Gain", font=font2)
-    v_drop_compensation_gain_entry.place(relx=0.74, rely=0.87, anchor=tkinter.CENTER)
-    v_drop_compensation_gain_label = ctk.CTkLabel(master=frame1, width=120, height=35, corner_radius=10,
-                                                  text=f"{config_data_dict['v_drop_compensation_gain']:.2f}",
+    lpf_cutoff_hz_entry = ctk.CTkEntry(master=frame1, width=120, height=35, corner_radius=10,
+                                                  placeholder_text="LPF Cutoff Hz", font=font2)
+    lpf_cutoff_hz_entry.place(relx=0.74, rely=0.87, anchor=tkinter.CENTER)
+    lpf_cutoff_hz_label = ctk.CTkLabel(master=frame1, width=120, height=35, corner_radius=10,
+                                                  text=f"{config_data_dict['lpf_cutoff_hz']:.2f}",
                                                   font=font1)
-    v_drop_compensation_gain_label.place(relx=0.26, rely=0.87, anchor=tkinter.CENTER)
+    lpf_cutoff_hz_label.place(relx=0.26, rely=0.87, anchor=tkinter.CENTER)
 
     hover_thr_entry = ctk.CTkEntry(master=frame1, width=120, height=35, corner_radius=10,
                                    placeholder_text="Hover Throttle", font=font2)
