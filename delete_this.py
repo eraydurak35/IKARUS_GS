@@ -486,3 +486,545 @@
 #
 # print(okunan_veri["waypoints"])
 # print(okunan_veri["field_points"])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# import numpy as np
+# import matplotlib.pyplot as plt
+#
+#
+# # Dereceyi radiana çeviren fonksiyon
+# def deg2rad(deg):
+#     return deg * np.pi / 180.0
+#
+#
+# # Pitch, Roll, Yaw açılarından dönüşüm matrisi oluşturan fonksiyon
+# def create_rotation_matrix(pitch, roll, yaw):
+#     # Pitch, Roll, Yaw açıları radian cinsine çevriliyor
+#     pitch_rad = deg2rad(pitch)
+#     roll_rad = deg2rad(roll)
+#     yaw_rad = deg2rad(yaw)
+#
+#     # Yaw (z ekseni etrafında)
+#     Rz = np.array([
+#         [np.cos(yaw_rad), -np.sin(yaw_rad), 0],
+#         [np.sin(yaw_rad), np.cos(yaw_rad), 0],
+#         [0, 0, 1]
+#     ])
+#
+#     # Pitch (y ekseni etrafında)
+#     Ry = np.array([
+#         [np.cos(pitch_rad), 0, np.sin(pitch_rad)],
+#         [0, 1, 0],
+#         [-np.sin(pitch_rad), 0, np.cos(pitch_rad)]
+#     ])
+#
+#     # Roll (x ekseni etrafında)
+#     Rx = np.array([
+#         [1, 0, 0],
+#         [0, np.cos(roll_rad), -np.sin(roll_rad)],
+#         [0, np.sin(roll_rad), np.cos(roll_rad)]
+#     ])
+#
+#     # Toplam dönüşüm matrisi: R = Rz * Ry * Rx
+#     return Rz @ Ry @ Rx
+#
+#
+# def main():
+#     # Kamera çözünürlüğü 100x100 piksel
+#     img_width = 100
+#     img_height = 100
+#
+#     # Kamera iç parametreleri (odak uzaklığı ve optik merkez)
+#     fx = 50  # Odak uzaklığı x (piksel cinsinden)
+#     fy = 50  # Odak uzaklığı y (piksel cinsinden)
+#     cx = img_width // 2  # Görüntü merkezinin x koordinatı (piksel)
+#     cy = img_height // 2  # Görüntü merkezinin y koordinatı (piksel)
+#
+#     # Kameranın konumu ve Euler açıları (pitch, roll, yaw)
+#     pitch = 0.0  # Derece cinsinden
+#     roll = 0.0    # Derece cinsinden
+#     yaw = 0.0    # Derece cinsinden
+#
+#     # Cismin dünya koordinatlarındaki pozisyonu (X, Y, Z)
+#     # X pozitifse uçak soldadır
+#     # Y pozitifse uçak yukarıdadır
+#     # Z pozitifse uçak geridedir
+#     world_coord = np.array([0.0, 50.0, 50.0])  # X, Y, Z değerleri metre cinsinden
+#
+#     # Dönüşüm matrisi oluştur
+#     R = create_rotation_matrix(-yaw, -pitch, -roll)
+#
+#     # Cisim koordinatlarını kameranın koordinat sistemine dönüştür
+#     camera_coord = R @ world_coord
+#
+#     # Z ekseni kameranın derinlik ekseni olduğu için negatifse görünmez demektir
+#     if camera_coord[2] <= 0:
+#         print("Cisim kamera tarafından görülemiyor.")
+#         return
+#
+#     # Perspektif projeksiyon (3D dünya koordinatlarından 2D piksel koordinatlarına)
+#     u = fx * (camera_coord[0] / camera_coord[2]) + cx
+#     v = fy * (camera_coord[1] / camera_coord[2]) + cy
+#
+#     # Piksel koordinatlarını tamsayıya çeviriyoruz (kare sınırlara bağlıyoruz)
+#     u = int(np.clip(u, 0, img_width - 1))
+#     v = int(np.clip(v, 0, img_height - 1))
+#
+#     # Boş bir 100x100 siyah görüntü oluşturuyoruz
+#     img = np.zeros((img_height, img_width))
+#
+#     # Cismin bulunduğu pikseli beyaz (1.0) yapıyoruz
+#     img[v, u] = 1.0
+#
+#     # Görüntüyü gösteriyoruz
+#     plt.imshow(img, cmap='gray', origin='upper')
+#
+#     # Grid ayarları: grid görünümü açık, gri renk, x ve y eksenlerinde gridler
+#     plt.grid(True, color='gray', linestyle='-', linewidth=0.5)
+#
+#     # Grid çizgilerinin her pikselde görünmesi için x ve y ticks ayarlanıyor
+#     plt.gca().set_xticks(np.arange(-0.5, img_width, 50))
+#     plt.gca().set_yticks(np.arange(-0.5, img_height, 50))
+#
+#     # Grid çizgilerinin hizalanmasını sağlamak için x ve y ticks ayarlarını sıfırlıyoruz
+#     plt.gca().set_xticklabels([])
+#     plt.gca().set_yticklabels([])
+#
+#     # Başlık
+#     plt.title(f'Cisim kameranın piksel koordinatlarında: ({u}, {v})')
+#
+#     # Görüntüyü göster
+#     plt.show()
+#
+#
+# if __name__ == "__main__":
+#     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+# from matplotlib.animation import FuncAnimation
+#
+# # Dereceyi radiana çeviren fonksiyon
+# def deg2rad(deg):
+#     return deg * np.pi / 180.0
+#
+# # Pitch, Roll, Yaw açılarından dönüşüm matrisi oluşturan fonksiyon
+# def create_rotation_matrix(pitch, roll, yaw):
+#     # Pitch, Roll, Yaw açıları radian cinsine çevriliyor
+#     pitch_rad = deg2rad(pitch)
+#     roll_rad = deg2rad(roll)
+#     yaw_rad = deg2rad(yaw)
+#
+#     # Yaw (z ekseni etrafında)
+#     Rz = np.array([
+#         [np.cos(yaw_rad), -np.sin(yaw_rad), 0],
+#         [np.sin(yaw_rad), np.cos(yaw_rad), 0],
+#         [0, 0, 1]
+#     ])
+#
+#     # Pitch (y ekseni etrafında)
+#     Ry = np.array([
+#         [np.cos(pitch_rad), 0, np.sin(pitch_rad)],
+#         [0, 1, 0],
+#         [-np.sin(pitch_rad), 0, np.cos(pitch_rad)]
+#     ])
+#
+#     # Roll (x ekseni etrafında)
+#     Rx = np.array([
+#         [1, 0, 0],
+#         [0, np.cos(roll_rad), -np.sin(roll_rad)],
+#         [0, np.sin(roll_rad), np.cos(roll_rad)]
+#     ])
+#
+#     # Toplam dönüşüm matrisi: R = Rz * Ry * Rx
+#     return Rz @ Ry @ Rx
+#
+# # Kamera parametreleri
+# img_width = 100
+# img_height = 100
+# fx = 50  # Odak uzaklığı x (piksel cinsinden)
+# fy = 50  # Odak uzaklığı y (piksel cinsinden)
+# cx = img_width // 2  # Görüntü merkezinin x koordinatı (piksel)
+# cy = img_height // 2  # Görüntü merkezinin y koordinatı (piksel)
+#
+# # Kamera Euler açıları (pitch, roll, yaw)
+# pitch = 10.0
+# roll = 5.0
+# yaw = 30.0
+#
+# # Dönüşüm matrisi oluştur
+# R = create_rotation_matrix(pitch, roll, yaw)
+#
+# # Görüntü oluşturma fonksiyonu
+# def update(frame):
+#     # Cismin dünya koordinatları her saniye farklı yer alıyor (örnek: hareket ediyor)
+#     world_coord = np.array([10.0 + frame * 1.0, 5.0, 50.0])  # X her saniye 1 metre artıyor
+#
+#     # Cisim koordinatlarını kameranın koordinat sistemine dönüştür
+#     camera_coord = R @ world_coord
+#
+#     # Perspektif projeksiyon
+#     if camera_coord[2] > 0:  # Derinlik pozitifse görünür
+#         u = fx * (camera_coord[0] / camera_coord[2]) + cx
+#         v = fy * (camera_coord[1] / camera_coord[2]) + cy
+#
+#         # Piksel koordinatlarını sınırlıyoruz
+#         u = int(np.clip(u, 0, img_width - 1))
+#         v = int(np.clip(v, 0, img_height - 1))
+#     else:
+#         u, v = -1, -1  # Görünmüyor
+#
+#     # Görüntüyü güncelle
+#     img = np.zeros((img_height, img_width))
+#     if u >= 0 and v >= 0:
+#         img[v, u] = 1.0
+#
+#     plt.cla()  # Önceki görüntüyü temizle
+#     plt.imshow(img, cmap='gray', origin='upper')
+#
+#     # Grid ayarları: gri renk ve ince çizgiler
+#     plt.grid(True, color='gray', linestyle='-', linewidth=0.5)
+#     plt.gca().set_xticks(np.arange(-0.5, img_width, 1))
+#     plt.gca().set_yticks(np.arange(-0.5, img_height, 1))
+#     plt.gca().set_xticklabels([])
+#     plt.gca().set_yticklabels([])
+#     plt.title(f'Cisim kameranın piksel koordinatlarında: ({u}, {v})')
+#
+# # Animasyon oluşturma
+# fig = plt.figure()
+# ani = FuncAnimation(fig, update, frames=np.arange(0, 10), interval=30)  # Her saniye 1 kare
+#
+# plt.show()
+#
+
+
+
+
+
+
+
+
+
+#
+#
+# import pygame
+# import numpy as np
+# import sys
+#
+# # Dereceyi radiana çeviren fonksiyon
+# def deg2rad(deg):
+#     return deg * np.pi / 180.0
+#
+# # Pitch, Roll, Yaw açılarıyla dönüşüm matrisi oluşturma
+# def create_rotation_matrix(pitch, roll, yaw):
+#     pitch_rad = deg2rad(pitch)
+#     roll_rad = deg2rad(roll)
+#     yaw_rad = deg2rad(yaw)
+#
+#     Rz = np.array([
+#         [np.cos(yaw_rad), -np.sin(yaw_rad), 0],
+#         [np.sin(yaw_rad), np.cos(yaw_rad), 0],
+#         [0, 0, 1]
+#     ])
+#
+#     Ry = np.array([
+#         [np.cos(pitch_rad), 0, np.sin(pitch_rad)],
+#         [0, 1, 0],
+#         [-np.sin(pitch_rad), 0, np.cos(pitch_rad)]
+#     ])
+#
+#     Rx = np.array([
+#         [1, 0, 0],
+#         [0, np.cos(roll_rad), -np.sin(roll_rad)],
+#         [0, np.sin(roll_rad), np.cos(roll_rad)]
+#     ])
+#
+#     return Rz @ Ry @ Rx
+#
+# # Pygame setup
+# pygame.init()
+# img_width = 100
+# img_height = 100
+# scale = 8  # Görüntü boyutunu büyütmek için
+# window = pygame.display.set_mode((img_width * scale, img_height * scale))
+# pygame.display.set_caption("Kamera Görüntüsü")
+# clock = pygame.time.Clock()
+#
+# # Kamera parametreleri
+# fx = 50  # Odak uzaklığı x
+# fy = 50  # Odak uzaklığı y
+# cx = img_width // 2  # Görüntü merkezinin x koordinatı
+# cy = img_height // 2  # Görüntü merkezinin y koordinatı
+#
+# # Kamera Euler açıları (pitch, roll, yaw)
+# pitch = 10.0
+# roll = 5.0
+# yaw = 30.0
+# R = create_rotation_matrix(pitch, roll, yaw)
+#
+# # Grid çizme fonksiyonu
+# def draw_grid():
+#         pygame.draw.line(window, (200, 200, 200), ((img_width * scale / 2), 0), ((img_width * scale / 2), img_width * scale,))
+#         pygame.draw.line(window, (200, 200, 200), (0, (img_width * scale / 2)), (img_width * scale, (img_width * scale / 2)))
+#
+# # Görüntü oluşturma ve güncelleme fonksiyonu
+# def update(frame):
+#     window.fill((0, 0, 0))  # Arka planı siyah yap
+#
+#     # Cisim dünya koordinatlarında hareket ediyor (her karede x artıyor)
+#     world_coord = np.array([10.0 + frame * 1.0, 5.0, 50.0])
+#
+#     # Cisim kameraya göre koordinat sistemine dönüştürülüyor
+#     camera_coord = R @ world_coord
+#
+#     # Perspektif projeksiyon
+#     if camera_coord[2] > 0:  # Derinlik pozitifse görünür
+#         u = fx * (camera_coord[0] / camera_coord[2]) + cx
+#         v = fy * (camera_coord[1] / camera_coord[2]) + cy
+#
+#         # Piksel koordinatlarını sınırlıyoruz
+#         u = int(np.clip(u, 0, img_width - 1))
+#         v = int(np.clip(v, 0, img_height - 1))
+#     else:
+#         u, v = -1, -1  # Görünmüyor
+#
+#     # Eğer cisim görüntüde görünüyorsa beyaz bir piksel olarak işaretle
+#     if u >= 0 and v >= 0:
+#         pygame.draw.rect(window, (255, 255, 255), (u * scale, v * scale, scale, scale))
+#
+#     # Grid çiz
+#     draw_grid()
+#
+#     # Pencereyi güncelle
+#     pygame.display.update()
+#
+# # Ana döngü
+# frame = 0
+# running = True
+# while running:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             running = False
+#
+#     update(frame)
+#     frame += 1
+#     clock.tick(30)  # Her saniyede bir kare
+#
+# pygame.quit()
+# sys.exit()
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+#
+# import serial
+# import struct
+# import time
+#
+# # COM portunu aç
+# ser = serial.Serial('COM10', 57600, timeout=1)
+#
+# # C yapısındaki plane_data_t'yi temsil eden format string
+# # 6 adet float değeri için: 'ffffff'
+# plane_data_format = 'ffffff'
+#
+#
+#
+# def read_uart_port():
+#     data_header = ser.read(1)
+#
+#     if data_header == b'\x20':
+#         data_bytes = ser.read(struct.calcsize(plane_data_format))
+#         plane_data = struct.unpack(plane_data_format, data_bytes)  # Binary veriyi floatlara çevir
+#         print(plane_data)
+#     else:
+#         print("data header bilinmiyor")
+#
+#
+#
+#
+#
+# def read_plane_data():
+#     # Her bir float 4 byte olduğu için toplamda 6 float için 24 byte veri bekliyoruz
+#     expected_bytes = struct.calcsize(plane_data_format)
+#
+#     if ser.in_waiting >= expected_bytes:  # Yeterli veri geldiyse
+#         data = ser.read(expected_bytes)  # Veriyi oku
+#         plane_data = struct.unpack(plane_data_format, data)  # Binary veriyi floatlara çevir
+#         return {
+#             'pos_ned_x': plane_data[0],
+#             'pos_ned_y': plane_data[1],
+#             'pos_ned_z': plane_data[2],
+#             'pitch_deg': plane_data[3],
+#             'roll_deg': plane_data[4],
+#             'heading_deg': plane_data[5],
+#         }
+#     return None
+#
+# def write_plane_data(pos_ned_x, pos_ned_y, pos_ned_z, pitch_deg, roll_deg, heading_deg):
+#     # Verileri binary formata çevir ve COM portuna yaz
+#     data = struct.pack(plane_data_format, pos_ned_x, pos_ned_y, pos_ned_z, pitch_deg, roll_deg, heading_deg)
+#     ser.write(data)
+#
+# try:
+#     while True:
+#         # Örnek olarak veri yazalım
+#         # write_plane_data(1.0, 2.0, 3.0, 45.0, 0.0, 90.0)
+#         time.sleep(0.03)
+#
+#         # Gelen veriyi okuyalım
+#         read_uart_port()
+#         # plane_data = read_plane_data()
+#         # if plane_data:
+#         #     print(f"Received plane data: {plane_data}")
+#         # else:
+#         #     print("Veri bekleniyor...")
+#
+# except KeyboardInterrupt:
+#     print("Program durduruldu.")
+# finally:
+#     ser.close()  # COM portunu kapat
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import pygame
+import sys
+
+# Pygame'i başlat
+pygame.init()
+
+# Pencere boyutlarını tanımla
+window_width, window_height = 500, 500
+window = pygame.display.set_mode((window_width, window_height))
+pygame.display.set_caption("Buton Örneği")
+
+# Renk tanımları
+white = (255, 255, 255)
+blue = (0, 0, 255)
+green = (0, 255, 0)
+
+# Font ayarı
+font = pygame.font.Font(None, 36)
+
+# Buton çizim fonksiyonu
+def draw_button(text, x, y, width, height, color):
+    pygame.draw.rect(window, color, (x, y, width, height))
+    text_surface = font.render(text, True, white)
+    window.blit(text_surface, (x + (width - text_surface.get_width()) // 2, y + (height - text_surface.get_height()) // 2))
+
+# Butona tıklama durumu
+button_clicked = False
+mouse_pressed = False
+
+# Ana döngü
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((0, 0, 0))  # Arka planı siyah yap
+
+    # Buton konumu ve boyutları
+    button_x, button_y = 200, 200
+    button_width, button_height = 100, 50
+
+    # Butonu çiz
+    draw_button("Tıkla", button_x, button_y, button_width, button_height, blue)
+
+    # Fare pozisyonu ve tıklamayı kontrol et
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_click = pygame.mouse.get_pressed()
+
+    # Fare tıklamasını kontrol et
+    if button_x <= mouse_pos[0] <= button_x + button_width and button_y <= mouse_pos[1] <= button_y + button_height:
+        if mouse_click[0]:  # Sol fare tuşuna basılıysa
+            if not mouse_pressed:  # Daha önce basılı değilse
+                mouse_pressed = True  # Fare tıklaması başladı
+                button_clicked = True  # Buton tıklandı
+                print("Butona tıklandı!")
+        else:
+            mouse_pressed = False  # Fare serbest bırakıldı
+
+    # Buton tıklanınca rengi değiştir
+    if button_clicked:
+        draw_button("Tıklandı", button_x, button_y, button_width, button_height, green)
+        button_clicked = False  # Tıklama sonrasında sıfırlanır, böylece tekrar tıklanabilir
+
+    pygame.display.update()
+
+pygame.quit()
+sys.exit()
