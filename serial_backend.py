@@ -34,6 +34,7 @@ parsed_wp_data1 = []
 parsed_wp_data2 = []
 wp_data_recv_time = 0
 
+
 def port_init(com_port):
     global serial_instance
     global expected_telemetry_data_size

@@ -32,7 +32,7 @@ seeker_data_dict = {
 # seeker veri boyutu 7 * float = 28 byte
 seeker_data_size = 28
 # uçak verisinin boyutu 6 * float = 24 byte
-plane_data_size = 24
+plane_data_size = 25 # 24 data bytes + 1 byte checksum (1 byte header hariç)
 
 # paketin başına eklenen tanımlayıcılar
 seeker_data_header = b'\x2a'
@@ -41,7 +41,7 @@ plane_data_header = b'\x20'
 # hedefin oluşturulduğu yerel pozisyon (metre)
 target_ned_x = 1000 # kuzey
 target_ned_y = -1500 # doğu
-target_ned_z = 100 # yükseklik
+target_ned_z = 80 # yükseklik
 
 # hedefin ilerleyeceği hız (m/s)
 target_speed_ned_x = -10
@@ -104,29 +104,39 @@ def initialize_camera_parameters(img_w, fov_x):
 initialize_camera_parameters(img_width, 90)
 
 
+def calculate_checksum(data):
+    return sum(data) & 0xFF
+
+
 def read_uart_port():
     # bir byte oku
     data_header = ser.read(1)
-
     # header bulundu mu kontrol et
     if data_header == plane_data_header:
         # bulunduysa paket boyutu kadar byte oku
         data_bytes = ser.read(plane_data_size)
-        # tüm byte'ları float'a çevir
-        plane_data = struct.unpack(plane_data_format, data_bytes)
-        # elde edlen float değerleri uçak veri yapısı içine atıyoruz
-        for index, key in enumerate(plane_data_dict.keys()):
-            plane_data_dict[key] = plane_data[index]
+        header_added_bytes = plane_data_header + data_bytes
 
-        # 0 +- 180 aralığından 0 360 aralığına çevir
-        if plane_data_dict["heading_degree"] < 0:
-            plane_data_dict["heading_degree"] = plane_data_dict["heading_degree"] + 360
+        calculated_checksum = calculate_checksum(header_added_bytes[:plane_data_size])
 
-        # veri paketi başarıyla alındı
-        return True
+        if calculated_checksum == data_bytes[24]:
+            # tüm byte'ları float'a çevir
+            plane_data = struct.unpack(plane_data_format, data_bytes[:plane_data_size - 1])
+            # elde edlen float değerleri uçak veri yapısı içine atıyoruz
+            for index, key in enumerate(plane_data_dict.keys()):
+                plane_data_dict[key] = plane_data[index]
+
+            # 0 +- 180 aralığından 0 360 aralığına çevir
+            if plane_data_dict["heading_degree"] < 0:
+                plane_data_dict["heading_degree"] = plane_data_dict["heading_degree"] + 360
+
+            # veri paketi başarıyla alındı
+            return True
+        else:
+            # checksum hatası
+            # print("checksum error")
+            return False
     else:
-        # okunan byte data header değil
-        # print("data header bilinmiyor")
         return False
 
 
@@ -138,7 +148,10 @@ def write_uart_port():
         # struct pack ile tüm float veriyi byte'larına ayır
         packed_data = packed_data + struct.pack('f', seeker_data_dict[keys])
     # paketin başına header ekle (42)
-    packed_data = struct.pack('B', 42) + packed_data
+
+    checksum = struct.pack('B', calculate_checksum(packed_data))
+    packed_data = struct.pack('B', 42) + packed_data + checksum
+
     # paketlenen veriyi gönder
     ser.write(packed_data)
 
@@ -195,6 +208,8 @@ def calculate_seeker_data():
     camera_coord = R @ world_coord
     # Z ekseni kameranın derinlik ekseni olduğu için negatifse görünmez demektir
     if camera_coord[2] <= 0:
+        v = 0
+        u = 0
         return
 
     # hedefin kameraya olan izdüşümünü hesapla
@@ -206,6 +221,7 @@ def calculate_distance_to_target():
     global target_ned_x, target_ned_y, target_ned_z
     return math.sqrt((target_ned_x - plane_data_dict["ned_x_position"]) ** 2 + (target_ned_y - plane_data_dict["ned_y_position"]) ** 2
                      + (target_ned_z - plane_data_dict["ned_z_position"]) ** 2)
+
 
 # Ekrana artı işareti çizdir
 def draw_grid():
@@ -340,8 +356,13 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
     update()
-    clock.tick(30)  # Her saniyede bir kare
+    clock.tick(30)  # Saniyede 30 kare
+
+ser.close()
 pygame.quit()
 sys.exit()
+
+
 
