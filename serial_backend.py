@@ -48,6 +48,8 @@ mavlink_msg_target_pos_vel_counter = 0
 mavlink_msg_pos_vel_counter = 0
 mavlink_msg_optical_flow_counter = 0
 mavlink_msg_range_finder_counter = 0
+mavlink_msg_cpu_usage_counter = 0
+mavlink_msg_rc_channels_counter = 0
 
 
 def port_init(com_port):
@@ -85,6 +87,8 @@ def read_serial():
     global mavlink_msg_pos_vel_counter
     global mavlink_msg_optical_flow_counter
     global mavlink_msg_range_finder_counter
+    global mavlink_msg_cpu_usage_counter
+    global mavlink_msg_rc_channels_counter
 
     received_byte = serial_instance.read(serial_instance.in_waiting)
     msg = mav.parse_char(received_byte)
@@ -150,6 +154,18 @@ def read_serial():
                 if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
                     mavlink_msg_range_finder[field] = getattr(msg, field)
 
+        elif msg.get_type() == 'CPU_USAGE':
+            mavlink_msg_cpu_usage_counter += 1
+            for field in mavlink_msg_cpu_usage.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_cpu_usage[field] = getattr(msg, field)
+
+        elif msg.get_type() == 'RC_CHANNELS':
+            mavlink_msg_rc_channels_counter += 1
+            for field in mavlink_msg_rc_channels.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_rc_channels[field] = getattr(msg, field)
+
     pass_time = time.time() - msg_freq_calculator_start_time
     if pass_time > 1.0:
         msg_freq_calculator_start_time = time.time()
@@ -164,6 +180,8 @@ def read_serial():
         data_struct.mavlink_msg_pos_vel_freq = mavlink_msg_pos_vel_counter / pass_time
         data_struct.mavlink_msg_optical_flow_freq = mavlink_msg_optical_flow_counter / pass_time
         data_struct.mavlink_msg_range_finder_freq = mavlink_msg_range_finder_counter / pass_time
+        data_struct.mavlink_msg_cpu_usage_freq = mavlink_msg_cpu_usage_counter / pass_time
+        data_struct.mavlink_msg_rc_channels_freq = mavlink_msg_rc_channels_counter / pass_time
 
         mavlink_msg_heartbeat_counter = 0
         mavlink_msg_imu_counter = 0
@@ -175,6 +193,8 @@ def read_serial():
         mavlink_msg_pos_vel_counter = 0
         mavlink_msg_optical_flow_counter = 0
         mavlink_msg_range_finder_counter = 0
+        mavlink_msg_cpu_usage_counter = 0
+        mavlink_msg_rc_channels_counter = 0
 
     return 0
     # # TELEMETRY RECEIVED

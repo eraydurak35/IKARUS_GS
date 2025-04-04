@@ -18,7 +18,9 @@ message_data = {
     "TARGET_POS_VEL": mavlink_msg_target_pos_vel,
     "POS_VEL": mavlink_msg_pos_vel,
     "OPTICAL_FLOW": mavlink_msg_optical_flow,
-    "RANGE_FINDER": mavlink_msg_range_finder
+    "RANGE_FINDER": mavlink_msg_range_finder,
+    "CPU_USAGE": mavlink_msg_cpu_usage,
+    "RC_CHANNELS": mavlink_msg_rc_channels
 }
 
 
@@ -55,7 +57,9 @@ def update_details_table_values(message_name: str):
         "TARGET_POS_VEL": data_struct.mavlink_msg_target_pos_vel_freq,
         "POS_VEL": data_struct.mavlink_msg_pos_vel_freq,
         "OPTICAL_FLOW": data_struct.mavlink_msg_optical_flow_freq,
-        "RANGE_FINDER": data_struct.mavlink_msg_range_finder_freq
+        "RANGE_FINDER": data_struct.mavlink_msg_range_finder_freq,
+        "CPU_USAGE": mavlink_msg_cpu_usage_freq,
+        "RC_CHANNELS": mavlink_msg_rc_channels_freq
     }
 
     if current_message_label and current_message_label.winfo_exists():

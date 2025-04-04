@@ -12,7 +12,7 @@ import pandas as pd
 from datetime import datetime
 import math
 from config_ui import show_config_window
-from mavlink_inspector_ui import show_mavlink_inspector_ui
+from mavlink_inspector_ui import show_mavlink_inspector_ui, mavlink_inspector_window
 import mag_calibration
 from tkinter import messagebox
 import voice_notify
@@ -271,23 +271,27 @@ class MainWindow:
 
         self.voice_notification_checkbox.place(relx=0.828, rely=0.07, anchor=tkinter.CENTER)
 
+        self.mavlink_inspector_button = ctk.CTkButton(master=self.root, width=35, height=18, corner_radius=10, text="MAVLink",
+                                                 command=show_mavlink_inspector_ui, font=("Ezarion", 12, "bold"))
+        self.mavlink_inspector_button.place(relx=0.79, rely=0.07, anchor=tkinter.CENTER)
+
         # UTILITY FRAME /*******************************************************************************/
 
         self.arm_utility_frame = ctk.CTkFrame(master=self.root, width=800, height=95,
                                               corner_radius=10)
         self.arm_utility_frame.place(relx=0.215, rely=0.053, anchor=tkinter.CENTER)
 
-        # self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
-        #                                    command=show_config_window, image=self.config_img, text="",
-        #                                    fg_color="transparent", state="enabled")
-        # self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
-
-
-
         self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
-                                           command=show_mavlink_inspector_ui, image=self.config_img, text="",
+                                           command=show_config_window, image=self.config_img, text="",
                                            fg_color="transparent", state="enabled")
         self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
+
+
+
+        # self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
+        #                                    command=show_mavlink_inspector_ui, image=self.config_img, text="",
+        #                                    fg_color="transparent", state="enabled")
+        # self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
 
 
 

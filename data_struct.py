@@ -263,6 +263,8 @@ mavlink_msg_target_pos_vel: Dict[str, Any] = {field: 0 for field in MAVLink_targ
 mavlink_msg_pos_vel: Dict[str, Any] = {field: 0 for field in MAVLink_pos_vel_message.fieldnames}
 mavlink_msg_optical_flow: Dict[str, Any] = {field: 0 for field in MAVLink_optical_flow_message.fieldnames}
 mavlink_msg_range_finder: Dict[str, Any] = {field: 0 for field in MAVLink_range_finder_message.fieldnames}
+mavlink_msg_cpu_usage: Dict[str, Any] = {field: 0 for field in MAVLink_cpu_usage_message.fieldnames}
+mavlink_msg_rc_channels: Dict[str, Any] = {field: 0 for field in MAVLink_rc_channels_message.fieldnames}
 
 
 mavlink_msg_heartbeat_freq = 0
@@ -275,6 +277,8 @@ mavlink_msg_target_pos_vel_freq = 0
 mavlink_msg_pos_vel_freq = 0
 mavlink_msg_optical_flow_freq = 0
 mavlink_msg_range_finder_freq = 0
+mavlink_msg_cpu_usage_freq = 0
+mavlink_msg_rc_channels_freq = 0
 
 
 waypoint_coordinates = []

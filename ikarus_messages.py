@@ -593,6 +593,8 @@ MAVLINK_MSG_ID_TARGET_POS_VEL = 121
 MAVLINK_MSG_ID_POS_VEL = 122
 MAVLINK_MSG_ID_OPTICAL_FLOW = 123
 MAVLINK_MSG_ID_RANGE_FINDER = 124
+MAVLINK_MSG_ID_CPU_USAGE = 125
+MAVLINK_MSG_ID_RC_CHANNELS = 126
 
 
 class MAVLink_heartbeat_message(MAVLink_message):
@@ -1226,6 +1228,96 @@ class MAVLink_range_finder_message(MAVLink_message):
 setattr(MAVLink_range_finder_message, "name", mavlink_msg_deprecated_name_property())
 
 
+class MAVLink_cpu_usage_message(MAVLink_message):
+    """
+    CPU Usage Message
+    """
+
+    id = MAVLINK_MSG_ID_CPU_USAGE
+    msgname = "CPU_USAGE"
+    fieldnames = ["core0_percent", "core1_percent"]
+    ordered_fieldnames = ["core0_percent", "core1_percent"]
+    fieldtypes = ["uint8_t", "uint8_t"]
+    fielddisplays_by_name: Dict[str, str] = {}
+    fieldenums_by_name: Dict[str, str] = {}
+    fieldunits_by_name: Dict[str, str] = {}
+    native_format = bytearray(b"<BB")
+    orders = [0, 1]
+    lengths = [1, 1]
+    array_lengths = [0, 0]
+    crc_extra = 142
+    unpacker = struct.Struct("<BB")
+    instance_field = None
+    instance_offset = -1
+
+    def __init__(self, core0_percent: int, core1_percent: int):
+        MAVLink_message.__init__(self, MAVLink_cpu_usage_message.id, MAVLink_cpu_usage_message.msgname)
+        self._fieldnames = MAVLink_cpu_usage_message.fieldnames
+        self._instance_field = MAVLink_cpu_usage_message.instance_field
+        self._instance_offset = MAVLink_cpu_usage_message.instance_offset
+        self.core0_percent = core0_percent
+        self.core1_percent = core1_percent
+
+    def pack(self, mav: "MAVLink", force_mavlink1: bool = False) -> bytes:
+        return self._pack(mav, self.crc_extra, self.unpacker.pack(self.core0_percent, self.core1_percent), force_mavlink1=force_mavlink1)
+
+
+# Define name on the class for backwards compatibility (it is now msgname).
+# Done with setattr to hide the class variable from mypy.
+setattr(MAVLink_cpu_usage_message, "name", mavlink_msg_deprecated_name_property())
+
+
+class MAVLink_rc_channels_message(MAVLink_message):
+    """
+    RC Controller Message
+    """
+
+    id = MAVLINK_MSG_ID_RC_CHANNELS
+    msgname = "RC_CHANNELS"
+    fieldnames = ["channel_1", "channel_2", "channel_3", "channel_4", "channel_5", "channel_6", "channel_7", "channel_8", "channel_9", "channel_10", "channel_11", "channel_12", "channel_13", "channel_14"]
+    ordered_fieldnames = ["channel_1", "channel_2", "channel_3", "channel_4", "channel_5", "channel_6", "channel_7", "channel_8", "channel_9", "channel_10", "channel_11", "channel_12", "channel_13", "channel_14"]
+    fieldtypes = ["int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t", "int16_t"]
+    fielddisplays_by_name: Dict[str, str] = {}
+    fieldenums_by_name: Dict[str, str] = {}
+    fieldunits_by_name: Dict[str, str] = {}
+    native_format = bytearray(b"<hhhhhhhhhhhhhh")
+    orders = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+    lengths = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    array_lengths = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    crc_extra = 103
+    unpacker = struct.Struct("<hhhhhhhhhhhhhh")
+    instance_field = None
+    instance_offset = -1
+
+    def __init__(self, channel_1: int, channel_2: int, channel_3: int, channel_4: int, channel_5: int, channel_6: int, channel_7: int, channel_8: int, channel_9: int, channel_10: int, channel_11: int, channel_12: int, channel_13: int, channel_14: int):
+        MAVLink_message.__init__(self, MAVLink_rc_channels_message.id, MAVLink_rc_channels_message.msgname)
+        self._fieldnames = MAVLink_rc_channels_message.fieldnames
+        self._instance_field = MAVLink_rc_channels_message.instance_field
+        self._instance_offset = MAVLink_rc_channels_message.instance_offset
+        self.channel_1 = channel_1
+        self.channel_2 = channel_2
+        self.channel_3 = channel_3
+        self.channel_4 = channel_4
+        self.channel_5 = channel_5
+        self.channel_6 = channel_6
+        self.channel_7 = channel_7
+        self.channel_8 = channel_8
+        self.channel_9 = channel_9
+        self.channel_10 = channel_10
+        self.channel_11 = channel_11
+        self.channel_12 = channel_12
+        self.channel_13 = channel_13
+        self.channel_14 = channel_14
+
+    def pack(self, mav: "MAVLink", force_mavlink1: bool = False) -> bytes:
+        return self._pack(mav, self.crc_extra, self.unpacker.pack(self.channel_1, self.channel_2, self.channel_3, self.channel_4, self.channel_5, self.channel_6, self.channel_7, self.channel_8, self.channel_9, self.channel_10, self.channel_11, self.channel_12, self.channel_13, self.channel_14), force_mavlink1=force_mavlink1)
+
+
+# Define name on the class for backwards compatibility (it is now msgname).
+# Done with setattr to hide the class variable from mypy.
+setattr(MAVLink_rc_channels_message, "name", mavlink_msg_deprecated_name_property())
+
+
 mavlink_map: Dict[int, Type[MAVLink_message]] = {
     MAVLINK_MSG_ID_HEARTBEAT: MAVLink_heartbeat_message,
     MAVLINK_MSG_ID_HIL_CONTROLS: MAVLink_hil_controls_message,
@@ -1241,6 +1333,8 @@ mavlink_map: Dict[int, Type[MAVLink_message]] = {
     MAVLINK_MSG_ID_POS_VEL: MAVLink_pos_vel_message,
     MAVLINK_MSG_ID_OPTICAL_FLOW: MAVLink_optical_flow_message,
     MAVLINK_MSG_ID_RANGE_FINDER: MAVLink_range_finder_message,
+    MAVLINK_MSG_ID_CPU_USAGE: MAVLink_cpu_usage_message,
+    MAVLINK_MSG_ID_RC_CHANNELS: MAVLink_rc_channels_message,
 }
 
 
@@ -1986,9 +2080,9 @@ class MAVLink(object):
         """
         Barometer Message
 
-        pressure_pascal           : Barometer pressure in pascal * 10 (type:float)
-        temperature_c             : Barometer temperature in c * 100 (type:float)
-        altitude_m                : Barometer altitude * 100 (type:float)
+        pressure_pascal           : Barometer pressure in pascal (type:float)
+        temperature_c             : Barometer temperature in c (type:float)
+        altitude_m                : Barometer altitude (type:float)
 
         """
         return MAVLink_barometer_message(pressure_pascal, temperature_c, altitude_m)
@@ -1997,9 +2091,9 @@ class MAVLink(object):
         """
         Barometer Message
 
-        pressure_pascal           : Barometer pressure in pascal * 10 (type:float)
-        temperature_c             : Barometer temperature in c * 100 (type:float)
-        altitude_m                : Barometer altitude * 100 (type:float)
+        pressure_pascal           : Barometer pressure in pascal (type:float)
+        temperature_c             : Barometer temperature in c (type:float)
+        altitude_m                : Barometer altitude (type:float)
 
         """
         self.send(self.barometer_encode(pressure_pascal, temperature_c, altitude_m), force_mavlink1=force_mavlink1)
@@ -2103,3 +2197,67 @@ class MAVLink(object):
 
         """
         self.send(self.range_finder_encode(range_cm), force_mavlink1=force_mavlink1)
+
+    def cpu_usage_encode(self, core0_percent: int, core1_percent: int) -> MAVLink_cpu_usage_message:
+        """
+        CPU Usage Message
+
+        core0_percent             : Core 0 usage in percent (type:uint8_t)
+        core1_percent             : Core 1 usage in percent (type:uint8_t)
+
+        """
+        return MAVLink_cpu_usage_message(core0_percent, core1_percent)
+
+    def cpu_usage_send(self, core0_percent: int, core1_percent: int, force_mavlink1: bool = False) -> None:
+        """
+        CPU Usage Message
+
+        core0_percent             : Core 0 usage in percent (type:uint8_t)
+        core1_percent             : Core 1 usage in percent (type:uint8_t)
+
+        """
+        self.send(self.cpu_usage_encode(core0_percent, core1_percent), force_mavlink1=force_mavlink1)
+
+    def rc_channels_encode(self, channel_1: int, channel_2: int, channel_3: int, channel_4: int, channel_5: int, channel_6: int, channel_7: int, channel_8: int, channel_9: int, channel_10: int, channel_11: int, channel_12: int, channel_13: int, channel_14: int) -> MAVLink_rc_channels_message:
+        """
+        RC Controller Message
+
+        channel_1                 : channel 1 (1000 - 2000) (type:int16_t)
+        channel_2                 : channel 2 (1000 - 2000) (type:int16_t)
+        channel_3                 : channel 3 (1000 - 2000) (type:int16_t)
+        channel_4                 : channel 4 (1000 - 2000) (type:int16_t)
+        channel_5                 : channel 5 (1000 - 2000) (type:int16_t)
+        channel_6                 : channel 6 (1000 - 2000) (type:int16_t)
+        channel_7                 : channel 7 (1000 - 2000) (type:int16_t)
+        channel_8                 : channel 8 (1000 - 2000) (type:int16_t)
+        channel_9                 : channel 9 (1000 - 2000) (type:int16_t)
+        channel_10                : channel 10 (1000 - 2000) (type:int16_t)
+        channel_11                : channel 11 (1000 - 2000) (type:int16_t)
+        channel_12                : channel 12 (1000 - 2000) (type:int16_t)
+        channel_13                : channel 13 (1000 - 2000) (type:int16_t)
+        channel_14                : channel 14 (1000 - 2000) (type:int16_t)
+
+        """
+        return MAVLink_rc_channels_message(channel_1, channel_2, channel_3, channel_4, channel_5, channel_6, channel_7, channel_8, channel_9, channel_10, channel_11, channel_12, channel_13, channel_14)
+
+    def rc_channels_send(self, channel_1: int, channel_2: int, channel_3: int, channel_4: int, channel_5: int, channel_6: int, channel_7: int, channel_8: int, channel_9: int, channel_10: int, channel_11: int, channel_12: int, channel_13: int, channel_14: int, force_mavlink1: bool = False) -> None:
+        """
+        RC Controller Message
+
+        channel_1                 : channel 1 (1000 - 2000) (type:int16_t)
+        channel_2                 : channel 2 (1000 - 2000) (type:int16_t)
+        channel_3                 : channel 3 (1000 - 2000) (type:int16_t)
+        channel_4                 : channel 4 (1000 - 2000) (type:int16_t)
+        channel_5                 : channel 5 (1000 - 2000) (type:int16_t)
+        channel_6                 : channel 6 (1000 - 2000) (type:int16_t)
+        channel_7                 : channel 7 (1000 - 2000) (type:int16_t)
+        channel_8                 : channel 8 (1000 - 2000) (type:int16_t)
+        channel_9                 : channel 9 (1000 - 2000) (type:int16_t)
+        channel_10                : channel 10 (1000 - 2000) (type:int16_t)
+        channel_11                : channel 11 (1000 - 2000) (type:int16_t)
+        channel_12                : channel 12 (1000 - 2000) (type:int16_t)
+        channel_13                : channel 13 (1000 - 2000) (type:int16_t)
+        channel_14                : channel 14 (1000 - 2000) (type:int16_t)
+
+        """
+        self.send(self.rc_channels_encode(channel_1, channel_2, channel_3, channel_4, channel_5, channel_6, channel_7, channel_8, channel_9, channel_10, channel_11, channel_12, channel_13, channel_14), force_mavlink1=force_mavlink1)
