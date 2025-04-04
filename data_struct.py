@@ -1,3 +1,6 @@
+from ikarus_messages import *
+
+
 telemetry_data_dict = {
     "RSSI": 0.0,
     "packet_drop_ratio": 100,
@@ -249,6 +252,30 @@ gamepad_data_dict = {
     "button_X": 0,
     "button_Y": 0
 }
+
+mavlink_msg_heartbeat: Dict[str, Any] = {field: 0 for field in MAVLink_heartbeat_message.fieldnames}
+mavlink_msg_imu: Dict[str, Any] = {field: 0 for field in MAVLink_imu_message.fieldnames}
+mavlink_msg_attitude: Dict[str, Any] = {field: 0 for field in MAVLink_attitude_message.fieldnames}
+mavlink_msg_target_attitude: Dict[str, Any] = {field: 0 for field in MAVLink_target_attitude_message.fieldnames}
+mavlink_msg_gnss: Dict[str, Any] = {field: 0 for field in MAVLink_gnss_message.fieldnames}
+mavlink_msg_barometer: Dict[str, Any] = {field: 0 for field in MAVLink_barometer_message.fieldnames}
+mavlink_msg_target_pos_vel: Dict[str, Any] = {field: 0 for field in MAVLink_target_pos_vel_message.fieldnames}
+mavlink_msg_pos_vel: Dict[str, Any] = {field: 0 for field in MAVLink_pos_vel_message.fieldnames}
+mavlink_msg_optical_flow: Dict[str, Any] = {field: 0 for field in MAVLink_optical_flow_message.fieldnames}
+mavlink_msg_range_finder: Dict[str, Any] = {field: 0 for field in MAVLink_range_finder_message.fieldnames}
+
+
+mavlink_msg_heartbeat_freq = 0
+mavlink_msg_imu_freq = 0
+mavlink_msg_attitude_freq = 0
+mavlink_msg_target_attitude_freq = 0
+mavlink_msg_gnss_freq = 0
+mavlink_msg_barometer_freq = 0
+mavlink_msg_target_pos_vel_freq = 0
+mavlink_msg_pos_vel_freq = 0
+mavlink_msg_optical_flow_freq = 0
+mavlink_msg_range_finder_freq = 0
+
 
 waypoint_coordinates = []
 field_coordinates = []

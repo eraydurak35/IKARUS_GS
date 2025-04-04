@@ -1,10 +1,11 @@
 import time
 import serial
-import struct
 import mag_calibration
 from data_struct import *
-import pandas as pd
+import data_struct
 import numpy as np
+import ikarus_messages
+from ikarus_messages import *
 
 serial_instance = serial
 expected_telemetry_data_size = 0
@@ -34,6 +35,20 @@ parsed_wp_data1 = []
 parsed_wp_data2 = []
 wp_data_recv_time = 0
 
+mav = ikarus_messages.MAVLink(None)
+
+msg_freq_calculator_start_time = time.time()
+mavlink_msg_heartbeat_counter = 0
+mavlink_msg_imu_counter = 0
+mavlink_msg_attitude_counter = 0
+mavlink_msg_target_attitude_counter = 0
+mavlink_msg_gnss_counter = 0
+mavlink_msg_barometer_counter = 0
+mavlink_msg_target_pos_vel_counter = 0
+mavlink_msg_pos_vel_counter = 0
+mavlink_msg_optical_flow_counter = 0
+mavlink_msg_range_finder_counter = 0
+
 
 def port_init(com_port):
     global serial_instance
@@ -59,218 +74,318 @@ def port_init(com_port):
 
 def read_serial():
     global serial_instance, end_of_wp_mission_behaviour_code
+    global msg_freq_calculator_start_time
+    global mavlink_msg_heartbeat_counter
+    global mavlink_msg_imu_counter
+    global mavlink_msg_attitude_counter
+    global mavlink_msg_target_attitude_counter
+    global mavlink_msg_gnss_counter
+    global mavlink_msg_barometer_counter
+    global mavlink_msg_target_pos_vel_counter
+    global mavlink_msg_pos_vel_counter
+    global mavlink_msg_optical_flow_counter
+    global mavlink_msg_range_finder_counter
 
-    data_header = serial_instance.read(1)
+    received_byte = serial_instance.read(serial_instance.in_waiting)
+    msg = mav.parse_char(received_byte)
 
-    # TELEMETRY RECEIVED
-    if data_header == b'\xff':
-        size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
-        if size - 3 != expected_telemetry_data_size:
-            print(f"received telem data size: {size - 3} bytes, expected: {expected_telemetry_data_size} bytes")
-            serial_instance.read(size)
+    if msg:
+        if msg.get_type() == 'HEARTBEAT':
+            mavlink_msg_heartbeat_counter += 1
+            for field in mavlink_msg_heartbeat.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_heartbeat[field] = getattr(msg, field)
 
-        else:
-            data_bytes = serial_instance.read(size)
-            is_ok = checksum_validate(data_bytes)
+        elif msg.get_type() == 'BAROMETER':
+            mavlink_msg_barometer_counter += 1
+            for field in mavlink_msg_barometer.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_barometer[field] = getattr(msg, field)
 
-            if is_ok == 1:
+        elif msg.get_type() == 'ATTITUDE':
+            mavlink_msg_attitude_counter += 1
+            for field in mavlink_msg_attitude.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_attitude[field] = getattr(msg, field)
 
-                parsed_data = []
-                i = 0
-                for key in telemetry_format_dict.keys():
+        elif msg.get_type() == 'TARGET_ATTITUDE':
+            mavlink_msg_target_attitude_counter += 1
+            for field in mavlink_msg_target_attitude.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_target_attitude[field] = getattr(msg, field)
 
-                    if telemetry_format_dict[key] == "f":
-                        four_bytes = bytearray(4)
-                        four_bytes[0] = data_bytes[i]
-                        four_bytes[1] = data_bytes[i + 1]
-                        four_bytes[2] = data_bytes[i + 2]
-                        four_bytes[3] = data_bytes[i + 3]
-                        parsed_data.append(struct.unpack('f', four_bytes)[0])
-                        i = i + 4
+        elif msg.get_type() == 'IMU':
+            mavlink_msg_imu_counter += 1
+            for field in mavlink_msg_imu.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_imu[field] = getattr(msg, field)
 
-                    elif telemetry_format_dict[key] == "i":
-                        four_bytes = bytearray(4)
-                        four_bytes[0] = data_bytes[i]
-                        four_bytes[1] = data_bytes[i + 1]
-                        four_bytes[2] = data_bytes[i + 2]
-                        four_bytes[3] = data_bytes[i + 3]
-                        parsed_data.append(struct.unpack('i', four_bytes)[0])
-                        i = i + 4
+        elif msg.get_type() == 'GNSS':
+            mavlink_msg_gnss_counter += 1
+            for field in mavlink_msg_gnss.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_gnss[field] = getattr(msg, field)
 
-                    elif telemetry_format_dict[key] == "B":
-                        one_byte = bytearray(1)
-                        one_byte[0] = data_bytes[i]
-                        parsed_data.append(struct.unpack('B', one_byte)[0])
-                        i = i + 1
+        elif msg.get_type() == 'TARGET_POS_VEL':
+            mavlink_msg_target_pos_vel_counter += 1
+            for field in mavlink_msg_target_pos_vel.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_target_pos_vel[field] = getattr(msg, field)
 
-                    elif telemetry_format_dict[key] == "h":
-                        two_bytes = bytearray(2)
-                        two_bytes[0] = data_bytes[i]
-                        two_bytes[1] = data_bytes[i + 1]
-                        parsed_data.append(struct.unpack('h', two_bytes)[0])
-                        i = i + 2
+        elif msg.get_type() == 'POS_VEL':
+            mavlink_msg_pos_vel_counter += 1
+            for field in mavlink_msg_pos_vel.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_pos_vel[field] = getattr(msg, field)
 
-                    elif telemetry_format_dict[key] == "H":
-                        two_bytes = bytearray(2)
-                        two_bytes[0] = data_bytes[i]
-                        two_bytes[1] = data_bytes[i + 1]
-                        parsed_data.append(struct.unpack('H', two_bytes)[0])
-                        i = i + 2
+        elif msg.get_type() == 'OPTICAL_FLOW':
+            mavlink_msg_optical_flow_counter += 1
+            for field in mavlink_msg_optical_flow.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_optical_flow[field] = getattr(msg, field)
 
-                for index, key in enumerate(telemetry_scale_dict.keys()):
-                    parsed_data[index] = parsed_data[index] / telemetry_scale_dict[key]
+        elif msg.get_type() == 'RANGE_FINDER':
+            mavlink_msg_range_finder_counter += 1
+            for field in mavlink_msg_range_finder.keys():
+                if hasattr(msg, field):  # Mesajda bu field var mı kontrolü
+                    mavlink_msg_range_finder[field] = getattr(msg, field)
 
-                for index, key in enumerate(telemetry_data_dict.keys()):
-                    telemetry_data_dict[key] = parsed_data[index]
+    pass_time = time.time() - msg_freq_calculator_start_time
+    if pass_time > 1.0:
+        msg_freq_calculator_start_time = time.time()
 
-                if blackbox_state:
-                    df = pd.DataFrame([telemetry_data_dict])
-                    df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/Project STARLING/flight_logs/" + blackbox_file_name,
-                              mode='a', index=False, header=False)
+        data_struct.mavlink_msg_heartbeat_freq = mavlink_msg_heartbeat_counter / pass_time
+        data_struct.mavlink_msg_imu_freq = mavlink_msg_imu_counter / pass_time
+        data_struct.mavlink_msg_attitude_freq = mavlink_msg_attitude_counter / pass_time
+        data_struct.mavlink_msg_target_attitude_freq = mavlink_msg_target_attitude_counter / pass_time
+        data_struct.mavlink_msg_gnss_freq = mavlink_msg_gnss_counter / pass_time
+        data_struct.mavlink_msg_barometer_freq = mavlink_msg_barometer_counter / pass_time
+        data_struct.mavlink_msg_target_pos_vel_freq = mavlink_msg_target_pos_vel_counter / pass_time
+        data_struct.mavlink_msg_pos_vel_freq = mavlink_msg_pos_vel_counter / pass_time
+        data_struct.mavlink_msg_optical_flow_freq = mavlink_msg_optical_flow_counter / pass_time
+        data_struct.mavlink_msg_range_finder_freq = mavlink_msg_range_finder_counter / pass_time
 
-                if gather_mag_data_for_calibration:
-                    mag_x_raw.append(telemetry_data_dict["mag_x_gauss"])
-                    mag_y_raw.append(telemetry_data_dict["mag_y_gauss"])
-                    mag_z_raw.append(telemetry_data_dict["mag_z_gauss"])
+        mavlink_msg_heartbeat_counter = 0
+        mavlink_msg_imu_counter = 0
+        mavlink_msg_attitude_counter = 0
+        mavlink_msg_target_attitude_counter = 0
+        mavlink_msg_gnss_counter = 0
+        mavlink_msg_barometer_counter = 0
+        mavlink_msg_target_pos_vel_counter = 0
+        mavlink_msg_pos_vel_counter = 0
+        mavlink_msg_optical_flow_counter = 0
+        mavlink_msg_range_finder_counter = 0
 
-            else:
-                print("checksum error telem!!")
-
-    # CONFIG RECEIVED
-    elif data_header == b'\xfe':
-
-        size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
-        if size - 3 != expected_config_data_size:
-            print(f"received config data size: {size - 3} bytes, expected: {expected_config_data_size} bytes")
-            serial_instance.read(size)
-
-        else:
-
-            data_bytes = serial_instance.read(size)
-            is_ok = checksum_validate(data_bytes)
-            if is_ok:
-
-                float_data = []
-                four_bytes = bytearray(4)
-                for i in range(0, expected_config_data_size, 4):
-                    four_bytes[0] = data_bytes[i]
-                    four_bytes[1] = data_bytes[i + 1]
-                    four_bytes[2] = data_bytes[i + 2]
-                    four_bytes[3] = data_bytes[i + 3]
-                    float_data.append(struct.unpack('f', four_bytes)[0])
-
-                for index, key in enumerate(config_data_dict.keys()):
-                    config_data_dict[key] = float_data[index]
-
-                return 2
-            else:
-                print("checksum error config!!")
-    # WAYPOINT RECEIVED
-    elif data_header == b'\xfd':
-        size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
-
-        if size != 230:
-            print("wp size is not 230")
-
-        else:
-            data_bytes = serial_instance.read(size)
-            is_ok = checksum_validate(data_bytes)
-            if is_ok == 1:
-
-                one_byte = bytearray(1)
-                one_byte[0] = data_bytes[0]
-                packet_index = struct.unpack('B', one_byte)[0]
-
-
-
-                if packet_index == 1:
-
-                    global parsed_wp_data1, parsed_wp_data2, wp_data_recv_time
-                    parsed_wp_data1.clear()
-
-                    wp_data_recv_time = time.monotonic()
-
-                    for i in range(1, 201, 4):
-                        four_bytes = bytearray(4)
-                        four_bytes[0] = data_bytes[i]
-                        four_bytes[1] = data_bytes[i + 1]
-                        four_bytes[2] = data_bytes[i + 2]
-                        four_bytes[3] = data_bytes[i + 3]
-                        parsed_wp_data1.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
-
-                    for i in range(201, 226, 1):
-                        one_byte = bytearray(1)
-                        one_byte[0] = data_bytes[i]
-                        parsed_wp_data1.append(struct.unpack('B', one_byte)[0])
-
-
-
-                elif packet_index == 2 and ((time.monotonic() - wp_data_recv_time) * 1000) < 500:
-
-
-                    parsed_wp_data2.clear()
-
-                    for i in range(1, 201, 4):
-                        four_bytes = bytearray(4)
-                        four_bytes[0] = data_bytes[i]
-                        four_bytes[1] = data_bytes[i + 1]
-                        four_bytes[2] = data_bytes[i + 2]
-                        four_bytes[3] = data_bytes[i + 3]
-                        parsed_wp_data2.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
-
-                    for i in range(201, 226, 1):
-                        one_byte = bytearray(1)
-                        one_byte[0] = data_bytes[i]
-                        parsed_wp_data2.append(struct.unpack('B', one_byte)[0])
-
-
-                    waypoint_coordinates.clear()
-                    waypoint_only_altitudes.clear()
-
-                    for i in range(0, 25, 1):
-                        if parsed_wp_data1[i] != 0 or parsed_wp_data1[i + 25] != 0:
-                            waypoint_coordinates.append((parsed_wp_data1[i], parsed_wp_data1[i + 25]))
-                            waypoint_only_altitudes.append(np.uint8(parsed_wp_data1[i + 50]))
-
-                    for i in range(0, 25, 1):
-                        if parsed_wp_data2[i] != 0 or parsed_wp_data2[i + 25] != 0:
-                            waypoint_coordinates.append((parsed_wp_data2[i], parsed_wp_data2[i + 25]))
-                            waypoint_only_altitudes.append(np.uint8(parsed_wp_data2[i + 50]))
-
-                    one_byte = bytearray(1)
-                    one_byte[0] = data_bytes[226]
-                    end_of_wp_mission_behaviour_code = struct.unpack('B', one_byte)[0]
-
-                    return 1
-
-                return 0
-            else:
-                print("checksum error wp!!")
-
-
-    elif data_header == b'\xfc':
-        size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
-
-        if size != 19:
-            print("motor test size is not 19")
-        else:
-            data_bytes = serial_instance.read(size)
-            is_ok = checksum_validate(data_bytes)
-
-            if is_ok:
-
-                for i in range(0, 16, 4):
-                    four_bytes = bytearray(4)
-                    four_bytes[0] = data_bytes[i]
-                    four_bytes[1] = data_bytes[i + 1]
-                    four_bytes[2] = data_bytes[i + 2]
-                    four_bytes[3] = data_bytes[i + 3]
-                    motor_test_results[int(i/4)] = struct.unpack('f', four_bytes)[0]
-
-                return 3
-            else:
-                print("checksum error motor test!!")
     return 0
+    # # TELEMETRY RECEIVED
+    # if data_header == b'\xff':
+    #     size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
+    #     if size - 3 != expected_telemetry_data_size:
+    #         print(f"received telem data size: {size - 3} bytes, expected: {expected_telemetry_data_size} bytes")
+    #         serial_instance.read(size)
+    #
+    #     else:
+    #         data_bytes = serial_instance.read(size)
+    #         is_ok = checksum_validate(data_bytes)
+    #
+    #         if is_ok == 1:
+    #
+    #             parsed_data = []
+    #             i = 0
+    #             for key in telemetry_format_dict.keys():
+    #
+    #                 if telemetry_format_dict[key] == "f":
+    #                     four_bytes = bytearray(4)
+    #                     four_bytes[0] = data_bytes[i]
+    #                     four_bytes[1] = data_bytes[i + 1]
+    #                     four_bytes[2] = data_bytes[i + 2]
+    #                     four_bytes[3] = data_bytes[i + 3]
+    #                     parsed_data.append(struct.unpack('f', four_bytes)[0])
+    #                     i = i + 4
+    #
+    #                 elif telemetry_format_dict[key] == "i":
+    #                     four_bytes = bytearray(4)
+    #                     four_bytes[0] = data_bytes[i]
+    #                     four_bytes[1] = data_bytes[i + 1]
+    #                     four_bytes[2] = data_bytes[i + 2]
+    #                     four_bytes[3] = data_bytes[i + 3]
+    #                     parsed_data.append(struct.unpack('i', four_bytes)[0])
+    #                     i = i + 4
+    #
+    #                 elif telemetry_format_dict[key] == "B":
+    #                     one_byte = bytearray(1)
+    #                     one_byte[0] = data_bytes[i]
+    #                     parsed_data.append(struct.unpack('B', one_byte)[0])
+    #                     i = i + 1
+    #
+    #                 elif telemetry_format_dict[key] == "h":
+    #                     two_bytes = bytearray(2)
+    #                     two_bytes[0] = data_bytes[i]
+    #                     two_bytes[1] = data_bytes[i + 1]
+    #                     parsed_data.append(struct.unpack('h', two_bytes)[0])
+    #                     i = i + 2
+    #
+    #                 elif telemetry_format_dict[key] == "H":
+    #                     two_bytes = bytearray(2)
+    #                     two_bytes[0] = data_bytes[i]
+    #                     two_bytes[1] = data_bytes[i + 1]
+    #                     parsed_data.append(struct.unpack('H', two_bytes)[0])
+    #                     i = i + 2
+    #
+    #             for index, key in enumerate(telemetry_scale_dict.keys()):
+    #                 parsed_data[index] = parsed_data[index] / telemetry_scale_dict[key]
+    #
+    #             for index, key in enumerate(telemetry_data_dict.keys()):
+    #                 telemetry_data_dict[key] = parsed_data[index]
+    #
+    #             if blackbox_state:
+    #                 df = pd.DataFrame([telemetry_data_dict])
+    #                 df.to_csv("C:/Users/erayd/OneDrive/Masaüstü/Project STARLING/flight_logs/" + blackbox_file_name,
+    #                           mode='a', index=False, header=False)
+    #
+    #             if gather_mag_data_for_calibration:
+    #                 mag_x_raw.append(telemetry_data_dict["mag_x_gauss"])
+    #                 mag_y_raw.append(telemetry_data_dict["mag_y_gauss"])
+    #                 mag_z_raw.append(telemetry_data_dict["mag_z_gauss"])
+    #
+    #         else:
+    #             print("checksum error telem!!")
+    #
+    # # CONFIG RECEIVED
+    # elif data_header == b'\xfe':
+    #
+    #     size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
+    #     if size - 3 != expected_config_data_size:
+    #         print(f"received config data size: {size - 3} bytes, expected: {expected_config_data_size} bytes")
+    #         serial_instance.read(size)
+    #
+    #     else:
+    #
+    #         data_bytes = serial_instance.read(size)
+    #         is_ok = checksum_validate(data_bytes)
+    #         if is_ok:
+    #
+    #             float_data = []
+    #             four_bytes = bytearray(4)
+    #             for i in range(0, expected_config_data_size, 4):
+    #                 four_bytes[0] = data_bytes[i]
+    #                 four_bytes[1] = data_bytes[i + 1]
+    #                 four_bytes[2] = data_bytes[i + 2]
+    #                 four_bytes[3] = data_bytes[i + 3]
+    #                 float_data.append(struct.unpack('f', four_bytes)[0])
+    #
+    #             for index, key in enumerate(config_data_dict.keys()):
+    #                 config_data_dict[key] = float_data[index]
+    #
+    #             return 2
+    #         else:
+    #             print("checksum error config!!")
+    # # WAYPOINT RECEIVED
+    # elif data_header == b'\xfd':
+    #     size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
+    #
+    #     if size != 230:
+    #         print("wp size is not 230")
+    #
+    #     else:
+    #         data_bytes = serial_instance.read(size)
+    #         is_ok = checksum_validate(data_bytes)
+    #         if is_ok == 1:
+    #
+    #             one_byte = bytearray(1)
+    #             one_byte[0] = data_bytes[0]
+    #             packet_index = struct.unpack('B', one_byte)[0]
+    #
+    #
+    #
+    #             if packet_index == 1:
+    #
+    #                 global parsed_wp_data1, parsed_wp_data2, wp_data_recv_time
+    #                 parsed_wp_data1.clear()
+    #
+    #                 wp_data_recv_time = time.monotonic()
+    #
+    #                 for i in range(1, 201, 4):
+    #                     four_bytes = bytearray(4)
+    #                     four_bytes[0] = data_bytes[i]
+    #                     four_bytes[1] = data_bytes[i + 1]
+    #                     four_bytes[2] = data_bytes[i + 2]
+    #                     four_bytes[3] = data_bytes[i + 3]
+    #                     parsed_wp_data1.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
+    #
+    #                 for i in range(201, 226, 1):
+    #                     one_byte = bytearray(1)
+    #                     one_byte[0] = data_bytes[i]
+    #                     parsed_wp_data1.append(struct.unpack('B', one_byte)[0])
+    #
+    #
+    #
+    #             elif packet_index == 2 and ((time.monotonic() - wp_data_recv_time) * 1000) < 500:
+    #
+    #
+    #                 parsed_wp_data2.clear()
+    #
+    #                 for i in range(1, 201, 4):
+    #                     four_bytes = bytearray(4)
+    #                     four_bytes[0] = data_bytes[i]
+    #                     four_bytes[1] = data_bytes[i + 1]
+    #                     four_bytes[2] = data_bytes[i + 2]
+    #                     four_bytes[3] = data_bytes[i + 3]
+    #                     parsed_wp_data2.append(struct.unpack('i', four_bytes)[0] / 10000000.0)
+    #
+    #                 for i in range(201, 226, 1):
+    #                     one_byte = bytearray(1)
+    #                     one_byte[0] = data_bytes[i]
+    #                     parsed_wp_data2.append(struct.unpack('B', one_byte)[0])
+    #
+    #
+    #                 waypoint_coordinates.clear()
+    #                 waypoint_only_altitudes.clear()
+    #
+    #                 for i in range(0, 25, 1):
+    #                     if parsed_wp_data1[i] != 0 or parsed_wp_data1[i + 25] != 0:
+    #                         waypoint_coordinates.append((parsed_wp_data1[i], parsed_wp_data1[i + 25]))
+    #                         waypoint_only_altitudes.append(np.uint8(parsed_wp_data1[i + 50]))
+    #
+    #                 for i in range(0, 25, 1):
+    #                     if parsed_wp_data2[i] != 0 or parsed_wp_data2[i + 25] != 0:
+    #                         waypoint_coordinates.append((parsed_wp_data2[i], parsed_wp_data2[i + 25]))
+    #                         waypoint_only_altitudes.append(np.uint8(parsed_wp_data2[i + 50]))
+    #
+    #                 one_byte = bytearray(1)
+    #                 one_byte[0] = data_bytes[226]
+    #                 end_of_wp_mission_behaviour_code = struct.unpack('B', one_byte)[0]
+    #
+    #                 return 1
+    #
+    #             return 0
+    #         else:
+    #             print("checksum error wp!!")
+    #
+    #
+    # elif data_header == b'\xfc':
+    #     size = int.from_bytes(bytes=serial_instance.read(1), byteorder="big")
+    #
+    #     if size != 19:
+    #         print("motor test size is not 19")
+    #     else:
+    #         data_bytes = serial_instance.read(size)
+    #         is_ok = checksum_validate(data_bytes)
+    #
+    #         if is_ok:
+    #
+    #             for i in range(0, 16, 4):
+    #                 four_bytes = bytearray(4)
+    #                 four_bytes[0] = data_bytes[i]
+    #                 four_bytes[1] = data_bytes[i + 1]
+    #                 four_bytes[2] = data_bytes[i + 2]
+    #                 four_bytes[3] = data_bytes[i + 3]
+    #                 motor_test_results[int(i/4)] = struct.unpack('f', four_bytes)[0]
+    #
+    #             return 3
+    #         else:
+    #             print("checksum error motor test!!")
+    # return 0
 
 
 def write_serial():
@@ -324,13 +439,6 @@ def write_serial():
         send_waypoints_data = False
         send_gamepad_data = True
 
-
-
-
-
-
-
-
         waypoint_only_latitudes.clear()
         waypoint_only_longitudes.clear()
 
@@ -345,19 +453,17 @@ def write_serial():
             waypoint_only_longitudes.extend([np.int32(0)] * (waypoint_limit - len(waypoint_coordinates)))
             wp_altitudes.extend([np.uint8(0)] * (waypoint_limit - len(waypoint_coordinates)))
 
-
         for i in range(2):
-
 
             packed_data = bytes()
 
-            packed_data = packed_data + struct.pack('B', i+1)
+            packed_data = packed_data + struct.pack('B', i + 1)
 
-            for values in waypoint_only_latitudes[25*i:25*(i+1)]:
+            for values in waypoint_only_latitudes[25 * i:25 * (i + 1)]:
                 packed_data = packed_data + struct.pack('i', values)
-            for values in waypoint_only_longitudes[25*i:25*(i+1)]:
+            for values in waypoint_only_longitudes[25 * i:25 * (i + 1)]:
                 packed_data = packed_data + struct.pack('i', values)
-            for values in wp_altitudes[25*i:25*(i+1)]:
+            for values in wp_altitudes[25 * i:25 * (i + 1)]:
                 packed_data = packed_data + struct.pack('B', values)
 
             # NEW ADDED

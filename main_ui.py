@@ -12,6 +12,7 @@ import pandas as pd
 from datetime import datetime
 import math
 from config_ui import show_config_window
+from mavlink_inspector_ui import show_mavlink_inspector_ui
 import mag_calibration
 from tkinter import messagebox
 import voice_notify
@@ -276,10 +277,20 @@ class MainWindow:
                                               corner_radius=10)
         self.arm_utility_frame.place(relx=0.215, rely=0.053, anchor=tkinter.CENTER)
 
+        # self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
+        #                                    command=show_config_window, image=self.config_img, text="",
+        #                                    fg_color="transparent", state="enabled")
+        # self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
+
+
+
         self.config_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=0,
-                                           command=show_config_window, image=self.config_img, text="",
+                                           command=show_mavlink_inspector_ui, image=self.config_img, text="",
                                            fg_color="transparent", state="enabled")
         self.config_button.place(relx=0.05, rely=0.5, anchor=tkinter.CENTER)
+
+
+
 
         self.blackbox_button = ctk.CTkButton(master=self.arm_utility_frame, width=40, height=40, corner_radius=5,
                                              command=self.blackbox, text="", state="enabled", fg_color="transparent",
@@ -789,24 +800,24 @@ class MainWindow:
         elif self.battery_volt_label.cget("fg_color") != "red4":
             self.battery_volt_label.configure(fg_color="red4")
 
-        self.gyro_x_data_label.configure(text=f"X: {telemetry_data_dict['gyro_x_dps']:.1f}")
-        self.gyro_y_data_label.configure(text=f"Y: {telemetry_data_dict['gyro_y_dps']:.1f}")
-        self.gyro_z_data_label.configure(text=f"Z: {telemetry_data_dict['gyro_z_dps']:.1f}")
+        self.gyro_x_data_label.configure(text=f"X: {mavlink_msg_imu['gyro_x'] / 100.0:.1f}")
+        self.gyro_y_data_label.configure(text=f"Y: {mavlink_msg_imu['gyro_y'] / 100.0:.1f}")
+        self.gyro_z_data_label.configure(text=f"Z: {mavlink_msg_imu['gyro_z'] / 100.0:.1f}")
 
-        self.accel_x_data_label.configure(text=f"X: {telemetry_data_dict['acc_x_ms2']:.1f}")
-        self.accel_y_data_label.configure(text=f"Y: {telemetry_data_dict['acc_y_ms2']:.1f}")
-        self.accel_z_data_label.configure(text=f"Z: {telemetry_data_dict['acc_z_ms2']:.1f}")
+        self.accel_x_data_label.configure(text=f"X: {mavlink_msg_imu['accel_x'] / 400.0:.1f}")
+        self.accel_y_data_label.configure(text=f"Y: {mavlink_msg_imu['accel_y'] / 400.0:.1f}")
+        self.accel_z_data_label.configure(text=f"Z: {mavlink_msg_imu['accel_z'] / 400.0:.1f}")
 
-        self.mag_x_data_label.configure(text=f"X: {telemetry_data_dict['mag_x_gauss']:.0f}")
-        self.mag_y_data_label.configure(text=f"Y: {telemetry_data_dict['mag_y_gauss']:.0f}")
-        self.mag_z_data_label.configure(text=f"Z: {telemetry_data_dict['mag_z_gauss']:.0f}")
+        self.mag_x_data_label.configure(text=f"X: {mavlink_msg_imu['mag_x']:.0f}")
+        self.mag_y_data_label.configure(text=f"Y: {mavlink_msg_imu['mag_y']:.0f}")
+        self.mag_z_data_label.configure(text=f"Z: {mavlink_msg_imu['mag_z']:.0f}")
 
-        self.imu_core_temp_label.configure(text=f"IMU Temp:    {telemetry_data_dict['imu_temperature']:.1f} °C")
+        self.imu_core_temp_label.configure(text=f"IMU Temp:    {mavlink_msg_imu['temp_mC'] / 100.0:.1f} °C")
 
         self.pressure_data_label.configure(
-            text=f"Pressure:             {telemetry_data_dict['barometer_pressure']:.1f} hPa")
-        self.temp_data_label.configure(text=f"Temperature:       {telemetry_data_dict['barometer_temperature']:.1f} °C")
-        self.altitude_data_label.configure(text=f"Altitude:                 {telemetry_data_dict['altitude']:.1f} m")
+            text=f"Pressure:             {mavlink_msg_barometer['pressure_pascal']:.1f} hPa")
+        self.temp_data_label.configure(text=f"Temperature:       {mavlink_msg_barometer['temperature_c']:.1f} °C")
+        self.altitude_data_label.configure(text=f"Altitude:                 {mavlink_msg_barometer['altitude_m']:.1f} m")
 
         self.tof_range_label.configure(text=f"Range:      {telemetry_data_dict['tof_distance'] * 100.0:.1f}")
         self.throttle_label.configure(text=f"Throttle: {telemetry_data_dict['throttle']:.0f}")
@@ -815,18 +826,18 @@ class MainWindow:
         self.rssi_label.configure(text=f"RSSI: {telemetry_data_dict['RSSI']:.0f} dBm")
         self.packet_drop_ratio_label.configure(text=f"PDR: {telemetry_data_dict['packet_drop_ratio']:.0f} %")
 
-        self.attitude_pitch_label.configure(text=f"Att θ: {telemetry_data_dict['pitch']:.1f}")
-        self.attitude_roll_label.configure(text=f"φ: {telemetry_data_dict['roll']:.1f}")
-        self.attitude_heading_label.configure(text=f"ψ: {telemetry_data_dict['heading']:.1f}")
+        self.attitude_pitch_label.configure(text=f"Att θ: {mavlink_msg_attitude['pitch_degree']:.1f}")
+        self.attitude_roll_label.configure(text=f"φ: {mavlink_msg_attitude['roll_degree']:.1f}")
+        self.attitude_heading_label.configure(text=f"ψ: {mavlink_msg_attitude['heading_degree']:.1f}")
 
-        self.target_attitude_pitch_label.configure(text=f"T.Att θ: {telemetry_data_dict['target_pitch']:.1f}")
-        self.target_attitude_roll_label.configure(text=f"φ: {telemetry_data_dict['target_roll']:.1f}")
-        self.target_attitude_heading_label.configure(text=f"ψ: {telemetry_data_dict['target_heading']:.1f}")
+        self.target_attitude_pitch_label.configure(text=f"T.Att θ: {mavlink_msg_target_attitude['pitch_degree']:.1f}")
+        self.target_attitude_roll_label.configure(text=f"φ: {mavlink_msg_target_attitude['roll_degree']:.1f}")
+        self.target_attitude_heading_label.configure(text=f"ψ: {mavlink_msg_target_attitude['heading_degree']:.1f}")
 
         self.target_dps_label.configure(text=f"tdps   "
-                                             f"θ: {telemetry_data_dict['target_pitch_dps']:.1f} "
-                                             f"φ: {telemetry_data_dict['target_roll_dps']:.1f} "
-                                             f"ψ: {telemetry_data_dict['target_yaw_dps']:.1f}")
+                                             f"θ: {mavlink_msg_target_attitude['pitch_dps']:.1f} "
+                                             f"φ: {mavlink_msg_target_attitude['roll_dps']:.1f} "
+                                             f"ψ: {mavlink_msg_target_attitude['yaw_dps']:.1f}")
 
         self.calibrated_altitude_label.configure(text=f"Alt: {telemetry_data_dict['altitude_calibrated']:.1f} m")
         self.target_altitude_label.configure(text=f"T.Alt: {telemetry_data_dict['target_altitude']:.1f} m")

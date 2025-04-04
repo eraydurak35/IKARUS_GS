@@ -7,17 +7,18 @@ import time
 import config_ui
 import voice_notify
 import motor_test_ui
+import mavlink_inspector_ui
 
 counter = 0
-
+counter2 = 0
 use_gamepad = 0
 
 
 def thread1():
-    global counter
+    global counter, counter2
     while ui_main.isAppAlive:
-        counter = counter + 1
-
+        counter += 1
+        counter2 += 1
         ret = serial_backend.read_serial()
 
         if ret == 1:
@@ -30,6 +31,10 @@ def thread1():
         if counter > 2:
             counter = 0
             ui_main.update_telemetry_ui()
+
+        if counter2 > 20:
+            counter2 = 0
+            mavlink_inspector_ui.show_message_details()
     quit()
 
 

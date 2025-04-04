@@ -6,7 +6,10 @@ import customtkinter as ctk
 
 font1 = ("Ezarion", 18, "bold")
 font2 = ("Ezarion", 13, "bold")
+
+
 def show_config_window():
+
     def request_config():
         serial_backend.request_config_data = True
         serial_backend.send_config_data = False
